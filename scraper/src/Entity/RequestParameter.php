@@ -13,7 +13,7 @@ class RequestParameter
     #[ORM\Column]
     private int|null $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'requestParameters')]
+    #[ORM\ManyToOne(cascade: ["remove"], inversedBy: 'requestParameters')]
     #[ORM\JoinColumn(nullable: false)]
     private DataSchema|null $dataSchema = null;
 

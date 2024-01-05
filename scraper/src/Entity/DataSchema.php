@@ -29,7 +29,7 @@ class DataSchema
     #[ORM\OneToMany(mappedBy: 'dataSchema', targetEntity: RequestParameter::class, cascade: ["persist"], orphanRemoval: true)]
     private Collection $requestParameters;
 
-    #[ORM\OneToMany(mappedBy: 'externalSchema', targetEntity: RequestParameter::class)]
+    #[ORM\OneToMany(mappedBy: 'externalSchema', targetEntity: RequestParameter::class, cascade: ["remove"])]
     private Collection $externalRequestParameters;
 
     #[ORM\OneToMany(mappedBy: 'dataSchema', targetEntity: ResponseField::class, orphanRemoval: true)]

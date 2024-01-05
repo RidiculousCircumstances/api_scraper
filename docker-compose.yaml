@@ -1,0 +1,42 @@
+version: '3.9'
+
+networks:
+  scraper:
+    external: false
+
+services:
+  php-fpm:
+    build:
+      dockerfile: docker/php-fpm/Dockerfile
+    ports:
+      - "8000:5000"
+    volumes:
+      - ./scraper:/var/www
+    tty: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - scraper
+
+  composer:
+    build:
+      dockerfile: ./docker/composer/Dockerfile
+      args:
+        APP_UID: ${APP_UID}
+        APP_GID: ${APP_GID}
+    volumes:
+      - ./scraper:/var/www
+    user: "${APP_UID}:${APP_GID}"
+
+  nginx:
+    build:
+      dockerfile: docker/nginx/Dockerfile
+    volumes:
+      - ./bot:/var/www
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    ports:
+      - "8080:443"
+    links:
+      - php-fpm
+    networks:
+      - scraper

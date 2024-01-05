@@ -3,6 +3,12 @@ version: '3.9'
 networks:
   scraper:
     external: false
+  postgres:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
 
 services:
   php-fpm:
@@ -17,22 +23,22 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - scraper
-
-  composer:
-    build:
-      dockerfile: ./docker/composer/Dockerfile
-      args:
-        APP_UID: ${APP_UID}
-        APP_GID: ${APP_GID}
-    volumes:
-      - ./scraper:/var/www
-    user: "${APP_UID}:${APP_GID}"
+      - postgres
+#
+#  composer:
+#    build:
+#      dockerfile: ./docker/composer/Dockerfile
+#    environment:
+#      APP_UID: ${APP_UID}
+#      APP_GID: ${APP_GID}
+#    volumes:
+#      - ./scraper:/var/www
 
   nginx:
     build:
       dockerfile: docker/nginx/Dockerfile
     volumes:
-      - ./bot:/var/www
+      - ./scraper:/var/www
       - ./docker/nginx/ssl:/etc/nginx/ssl
     ports:
       - "8080:443"
@@ -40,3 +46,31 @@ services:
       - php-fpm
     networks:
       - scraper
+
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/postgre/Dockerfile
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - type: bind
+        source: ./docker/postgre/init
+        target: /docker-entrypoint-initdb.d
+      - type: volume
+        source: dbdata
+        target: /var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U db_user -d scraper_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - postgres

@@ -28,6 +28,11 @@ class ResponseField
     #[ORM\ManyToMany(targetEntity: OutputSchema::class, mappedBy: 'responseFields')]
     private Collection $outputSchemas;
 
+
+    public function __toString(): string {
+        return $this->dataPath;
+    }
+
     public function __construct()
     {
         $this->outputSchemas = new ArrayCollection();
@@ -67,9 +72,9 @@ class ResponseField
         return $this->dataSchema;
     }
 
-    public function setDataSchema(DataSchema|null $DataSchema): static
+    public function setDataSchema(DataSchema|null $dataSchema): static
     {
-        $this->dataSchema = $DataSchema;
+        $this->dataSchema = $dataSchema;
 
         return $this;
     }

@@ -24,15 +24,15 @@ services:
     networks:
       - scraper
       - postgres
-#
-#  composer:
-#    build:
-#      dockerfile: ./docker/composer/Dockerfile
-#    environment:
-#      APP_UID: ${APP_UID}
-#      APP_GID: ${APP_GID}
-#    volumes:
-#      - ./scraper:/var/www
+
+  composer:
+    build:
+      dockerfile: ./docker/composer/Dockerfile
+    environment:
+      APP_UID: ${APP_UID}
+      APP_GID: ${APP_GID}
+    volumes:
+      - ./scraper:/var/www
 
   nginx:
     build:

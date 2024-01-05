@@ -26,16 +26,16 @@ class DataSchema
     #[ORM\Column(type: "string", length: 255)]
     private string $url;
 
-    #[ORM\OneToMany(mappedBy: 'dataSchema', targetEntity: RequestParameter::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'dataSchema', targetEntity: RequestParameter::class, cascade: ["persist"], orphanRemoval: true)]
     private Collection $requestParameters;
 
     #[ORM\OneToMany(mappedBy: 'externalSchema', targetEntity: RequestParameter::class)]
     private Collection $externalRequestParameters;
 
-    #[ORM\OneToMany(mappedBy: 'DataSchema', targetEntity: ResponseField::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'dataSchema', targetEntity: ResponseField::class, orphanRemoval: true)]
     private Collection $responseFields;
 
-    #[ORM\ManyToOne(inversedBy: 'dataSchemas')]
+    #[ORM\ManyToOne(cascade: ["persist"], inversedBy: 'dataSchemas')]
     #[ORM\JoinColumn(nullable: true)]
     private GroupTag|null $groupTag = null;
 
@@ -44,6 +44,10 @@ class DataSchema
         $this->requestParameters = new ArrayCollection();
         $this->externalRequestParameters = new ArrayCollection();
         $this->responseFields = new ArrayCollection();
+    }
+
+    public function __toString(): string {
+        return $this->name . ' ' . $this->id;
     }
 
     public function getId(): int|null

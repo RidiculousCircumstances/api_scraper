@@ -6,3 +6,6 @@ install: ## Install all app dependencies
 
 echo: ## Install all app dependencies
 	docker compose run -e APP_UID='111' -e APP_GID='222' composer echo $(APP_UID)
+
+autoload:
+	docker compose run composer composer dump-autoload

@@ -18,11 +18,15 @@ class GroupTag
     #[ORM\Column(length: 50)]
     private string|null $code = null;
 
-    #[ORM\OneToMany(mappedBy: 'groupTag', targetEntity: DataSchema::class)]
+    #[ORM\OneToMany(mappedBy: 'groupTag', targetEntity: DataSchema::class, cascade: ["remove"])]
     private Collection $dataSchemas;
 
     #[ORM\OneToMany(mappedBy: 'groupTag', targetEntity: OutputSchema::class)]
     private Collection $outputSchemas;
+
+    public function __toString(): string {
+        return $this->code;
+    }
 
     public function __construct()
     {

@@ -23,11 +23,12 @@ class RequestParameter
     #[ORM\Column(length: 255, nullable: true)]
     private string|null $value = null;
 
-    #[ORM\Column]
-    private bool|null $isExternal = null;
-
     #[ORM\ManyToOne(inversedBy: 'externalRequestParameters')]
     private DataSchema|null $externalSchema = null;
+
+    public function __toString(): string {
+        return $this->key;
+    }
 
     public function getId(): int|null
     {
@@ -66,18 +67,6 @@ class RequestParameter
     public function setValue(string|null $value): static
     {
         $this->value = $value;
-
-        return $this;
-    }
-
-    public function isIsExternal(): bool|null
-    {
-        return $this->isExternal;
-    }
-
-    public function setIsExternal(bool $isExternal): static
-    {
-        $this->isExternal = $isExternal;
 
         return $this;
     }

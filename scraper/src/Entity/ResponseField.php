@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\ResponseSchemaRepository;
+use App\Repository\ResponseField\ResponseFieldRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ResponseSchemaRepository::class)]
+#[ORM\Entity(repositoryClass: ResponseFieldRepository::class)]
 class ResponseField
 {
     #[ORM\Id]
@@ -30,7 +30,7 @@ class ResponseField
 
 
     public function __toString(): string {
-        return $this->dataPath;
+        return $this->dataSchema->getName() . ': ' . $this->dataPath;
     }
 
     public function __construct()

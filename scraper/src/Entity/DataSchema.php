@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\DataSchemaRepository;
+use App\Repository\DataSchema\DataSchemaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -32,7 +32,7 @@ class DataSchema
     #[ORM\OneToMany(mappedBy: 'externalSchema', targetEntity: RequestParameter::class, cascade: ["remove"])]
     private Collection $externalRequestParameters;
 
-    #[ORM\OneToMany(mappedBy: 'dataSchema', targetEntity: ResponseField::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'dataSchema', targetEntity: ResponseField::class, cascade: ["persist", "remove"], orphanRemoval: true)]
     private Collection $responseFields;
 
     #[ORM\ManyToOne(cascade: ["persist"], inversedBy: 'dataSchemas')]

@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\RequestParameterRepository;
+use App\Repository\RequestParameter\RequestParameterRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RequestParameterRepository::class)]

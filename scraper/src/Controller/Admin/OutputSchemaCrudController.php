@@ -3,26 +3,47 @@
 namespace App\Controller\Admin;
 
 use App\Entity\OutputSchema;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use App\Repository\ResponseField\Modifier\GroupModifier;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class OutputSchemaCrudController extends AbstractCrudController
+class OutputSchemaCrudController extends BaseCrudController
 {
+
+    public function __construct()
+    {
+    }
+
     public static function getEntityFqcn(): string
     {
         return OutputSchema::class;
     }
 
-    /*
     public function configureFields(string $pageName): iterable
     {
-        return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
-        ];
+        yield IdField::new('id')->setDisabled();
+
+        $groupTag = AssociationField::new('groupTag');
+        if($this->isNew()) {
+            yield $groupTag;
+        } else {
+            yield $groupTag->setDisabled();
+        }
+        yield TextField::new('name');
+
+        if($this->isNew()) {
+            return AssociationField::new('responseFields');
+        }
+
+        $outputSchema = $this->getContext()?->getEntity()->getInstance();
+        $groupModifier = new GroupModifier($outputSchema->getGroupTag(), 'entity');
+        yield AssociationField::new('responseFields')
+            ->setQueryBuilder(fn(QueryBuilder $b) =>
+                $groupModifier->apply($b)
+            );
     }
-    */
+
+
 }

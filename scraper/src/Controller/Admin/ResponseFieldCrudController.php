@@ -2,21 +2,25 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\GroupTag;
+use App\Entity\ResponseField;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
-class GroupTagCrudController extends AbstractCrudController
+class ResponseFieldCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return GroupTag::class;
+        return ResponseField::class;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('code');
+        yield TextField::new('dataPath', 'Ключ');
+        yield TextField::new('outputName', 'Название');
     }
+
 }

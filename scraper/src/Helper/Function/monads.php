@@ -98,7 +98,7 @@ function get_by_dot_keys(string $keys): Closure
 function set_by_dot_keys(string $keys, $value): Closure
 {
     return function(array $array) use($keys, $value) {
-        $keys = explode_dot($keys);
+        $keys = explode('.', $keys);
         $reference = &$array;
         foreach ($keys as $key) {
             if (!array_key_exists($key, $reference)) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Parsing\Enum;
+namespace App\Message\Parsing\Enum;
 
 enum OutputFormatsEnum: string
 {

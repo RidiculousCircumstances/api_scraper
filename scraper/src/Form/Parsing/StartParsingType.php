@@ -42,12 +42,12 @@ class StartParsingType extends AbstractType
         }
 
         $builder
-            ->add('schemas', ChoiceType::class, [
+            ->add('schema', ChoiceType::class, [
                 'choices' => $dataSchemaChoices,
                 'label' => 'Использовать схему данных: ',
                 'placeholder' => 'Выбрать...'
             ])
-            ->add('formats', ChoiceType::class, [
+            ->add('format', ChoiceType::class, [
                 'choices' => $formatChoices,
                 'label' => 'Парсить в: ',
                 'placeholder' => 'Выбрать...'

@@ -9,30 +9,39 @@ networks:
 volumes:
   dbdata:
     driver: local
+  redis:
+    driver: local
 
 services:
-  php-fpm:
+  php-fpm: &base
     build:
       dockerfile: docker/php-fpm/Dockerfile
-    ports:
-      - "8000:5000"
     volumes:
       - ./scraper:/var/www
-    tty: true
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - scraper
       - postgres
 
-  composer:
-    build:
-      dockerfile: ./docker/composer/Dockerfile
-    environment:
-      APP_UID: ${APP_UID}
-      APP_GID: ${APP_GID}
-    volumes:
-      - ./scraper:/var/www
+  web:
+    <<: *base
+    ports:
+      - "8000:5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  consumer:
+    <<: *base
+    tty: true
+    command: php bin/console messenger:consume -vv async
+
+#  composer:
+#    build:
+#      dockerfile: ./docker/composer/Dockerfile
+#    environment:
+#      APP_UID: ${APP_UID}
+#      APP_GID: ${APP_GID}
+#    volumes:
+#      - ./scraper:/var/www
 
   nginx:
     build:
@@ -43,7 +52,7 @@ services:
     ports:
       - "8080:443"
     links:
-      - php-fpm
+      - web
     networks:
       - scraper
 
@@ -74,3 +83,19 @@ services:
     restart: unless-stopped
     networks:
       - postgres
+
+  redis:
+    image: "redis:alpine"
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: ./docker/redis/conf/
+        target: /usr/local/etc/redis/
+      - type: volume
+        source: redis
+        target: /opt/redis/data/bases
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - scraper

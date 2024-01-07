@@ -45,7 +45,7 @@ final readonly class PrepareParsingInstructionService
 
         $stack = new ParsingInstructionStackData();
 
-        $resolve = static function (DataSchema $schema) use (&$order, &$resolve, $stack): ParsingInstructionData {
+        $resolve = static function (DataSchema $schema, ParsingInstructionStackData $stack) use (&$order, &$resolve): ParsingInstructionData {
             $order++;
             $requestParameters = $schema->getRequestParameters();
 
@@ -96,7 +96,7 @@ final readonly class PrepareParsingInstructionService
             return $parsingInstructionData;
         };
 
-        $resolve($schema);
+        $resolve($schema, $stack);
 
         return $stack;
     }

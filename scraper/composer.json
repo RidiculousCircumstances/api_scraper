@@ -23,7 +23,8 @@
         "symfony/runtime": "7.0.*",
         "symfony/serializer": "7.0.*",
         "symfony/string": "7.0.*",
-        "symfony/yaml": "7.0.*"
+        "symfony/yaml": "7.0.*",
+        "php-ds/php-ds": "*"
     },
     "config": {
         "allow-plugins": {

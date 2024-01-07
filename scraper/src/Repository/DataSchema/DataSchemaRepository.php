@@ -5,6 +5,7 @@ namespace App\Repository\DataSchema;
 use App\Entity\DataSchema;
 use App\Entity\GroupTag;
 use App\Repository\Common\Modifier\ModifierManager;
+use App\Repository\DataSchema\Modifier\ExcludedByIdsModifier;
 use App\Repository\DataSchema\Modifier\GroupModifier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -27,13 +28,28 @@ class DataSchemaRepository extends ServiceEntityRepository
         parent::__construct($registry, DataSchema::class);
     }
 
-    public function findByGroupTag(GroupTag $groupTag, bool $exec = true): mixed
+    public function findByGroupTag(GroupTag $groupTag): mixed
     {
         $groupTagModifier = new GroupModifier($groupTag);
 
         $qb = $this->createQueryBuilder(self::ALIAS);
 
         $this->modifierManager->add($groupTagModifier)->apply($qb);
+
+        return $qb
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByGroupTagExcludingById(GroupTag $groupTag, array $excludeIds): mixed
+    {
+
+        $qb = $this->createQueryBuilder(self::ALIAS);
+
+        $this->modifierManager
+            ->add(new GroupModifier($groupTag))
+            ->add(new ExcludedByIdsModifier($excludeIds))
+            ->apply($qb);
 
         return $qb
             ->getQuery()

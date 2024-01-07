@@ -15,7 +15,6 @@ readonly class GroupModifier implements ModifierInterface
         $queryBuilder->andWhere($this->alias . '.groupTag = :groupTagId')
         ->setParameters([
             'groupTagId' => $this->groupTag->getId(),
-        ])
-        ->getQuery();
+        ]);
     }
 }

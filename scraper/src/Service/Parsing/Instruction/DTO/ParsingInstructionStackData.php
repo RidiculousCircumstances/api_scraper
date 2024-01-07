@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Parsing\DTO;
+namespace App\Service\Parsing\Instruction\DTO;
 
 use Ds\Stack;
 
@@ -14,7 +14,8 @@ class ParsingInstructionStackData
      */
     private Stack $stack;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->stack = new Stack();
     }
 
@@ -28,7 +29,13 @@ class ParsingInstructionStackData
         $this->stack[] = $instructionData;
     }
 
-    public function pop() {
+    public function pop(): ParsingInstructionData|null
+    {
+
+        if ($this->stack->isEmpty()) {
+            return null;
+        }
+
         return $this->stack->pop();
     }
 

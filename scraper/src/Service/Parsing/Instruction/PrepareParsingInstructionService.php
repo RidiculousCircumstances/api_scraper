@@ -1,26 +1,42 @@
 <?php
 
-namespace App\Service\Parsing;
+namespace App\Service\Parsing\Instruction;
 
 use App\Entity\DataSchema;
 use App\Message\Parsing\StartParsingCommand;
 use App\Repository\DataSchema\DataSchemaRepository;
-use App\Service\Parsing\DTO\ParsingInstructionData;
-use App\Service\Parsing\DTO\ParsingInstructionStackData;
-use App\Service\Parsing\DTO\RequestData;
-use App\Service\Parsing\DTO\RequestParameterData;
-use App\Service\Parsing\DTO\ResponseData;
-use App\Service\Parsing\DTO\ResponseFieldData;
+use App\Service\Parsing\Instruction\DTO\ParsingInstructionData;
+use App\Service\Parsing\Instruction\DTO\ParsingInstructionStackData;
+use App\Service\Parsing\Instruction\DTO\RequestData;
+use App\Service\Parsing\Instruction\DTO\RequestParameterData;
+use App\Service\Parsing\Instruction\DTO\ResponseData;
+use App\Service\Parsing\Instruction\DTO\ResponseFieldData;
 use RuntimeException;
 
-/**
- * Резолвит схему запроса в связанную структуру, которую можно последовательно обойти, отправляя запросы
- * и используя результат предыдущего запроса для последующего
- */
+
 final readonly class PrepareParsingInstructionService
 {
     public function __construct(private DataSchemaRepository $dataSchemaRepository)
     {
+
+    }
+
+    /**
+     * Преобразовать схему запроса в связанную структуру, которую можно последовательно обойти, отправляя запросы
+     * и используя результат предыдущего запроса для последующего
+     */
+    public function prepareParsingInstruction(StartParsingCommand $startParsingCommand): ParsingInstructionStackData
+    {
+
+        $repo = $this->dataSchemaRepository;
+
+        $schema = $repo->find($startParsingCommand->getSchema());
+
+        if ($schema === null) {
+            throw new RuntimeException('[PrepareParsingInstructionService] DataSchema with id [' . $startParsingCommand->getSchema() . '] not found');
+        }
+
+        return $this->resolveInstruction($schema);
 
     }
 
@@ -29,22 +45,22 @@ final readonly class PrepareParsingInstructionService
 
         $stack = new ParsingInstructionStackData();
 
-        $resolve = static function(DataSchema $schema) use (&$order, &$resolve, $stack): ParsingInstructionData {
-            $order ++;
+        $resolve = static function (DataSchema $schema) use (&$order, &$resolve, $stack): ParsingInstructionData {
+            $order++;
             $requestParameters = $schema->getRequestParameters();
 
             $requestParameterDataArray = [];
-            foreach($requestParameters as $parameter) {
+            foreach ($requestParameters as $parameter) {
 
                 $externalSchema = $parameter->getExternalSchema();
 
                 $requestParameterData = new RequestParameterData(
-                    key: $parameter->getKey(),value: $parameter->getValue()
+                    key: $parameter->getKey(), value: $parameter->getValue()
                 );
 
-                if($externalSchema !== null) {
+                if ($externalSchema !== null) {
                     $externalSchemaData = $resolve($externalSchema);
-                    $requestParameterData->setExternalSource($externalSchemaData);
+                    $requestParameterData->setExternalSourceId($externalSchemaData->getFqcn());
                 }
 
                 $requestParameterDataArray[] = $requestParameterData;
@@ -53,7 +69,7 @@ final readonly class PrepareParsingInstructionService
 
             $requestData = new RequestData(
                 targetUrl: $schema->getUrl(),
-                httpMethod: 'post',
+                httpMethod: 'get',
                 requestParameters: $requestParameterDataArray
             );
 
@@ -61,7 +77,7 @@ final readonly class PrepareParsingInstructionService
 
             $responseFieldDataArray = [];
 
-            foreach($responseFields as $field) {
+            foreach ($responseFields as $field) {
                 $responseFieldDataArray[] = new ResponseFieldData(
                     responsePath: $field->getDataPath(),
                     outputName: $field->getOutputName()
@@ -83,20 +99,5 @@ final readonly class PrepareParsingInstructionService
         $resolve($schema);
 
         return $stack;
-    }
-
-    public function prepareParsingInstruction(StartParsingCommand $startParsingCommand): ParsingInstructionStackData
-    {
-
-        $repo = $this->dataSchemaRepository;
-
-        $schema = $repo->find($startParsingCommand->getSchema());
-
-        if($schema === null) {
-            throw new RuntimeException('[PrepareParsingInstructionService] DataSchema with id [' . $startParsingCommand->getSchema() . '] not found');
-        }
-
-        return $this->resolveInstruction($schema);
-
     }
 }

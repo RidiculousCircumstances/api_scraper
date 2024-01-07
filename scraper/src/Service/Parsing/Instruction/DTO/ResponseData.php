@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Service\Parsing\DTO;
+namespace App\Service\Parsing\Instruction\DTO;
 
-class ResponseData
+readonly class ResponseData
 {
     public function __construct(
         private array $responseFields

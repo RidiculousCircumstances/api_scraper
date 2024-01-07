@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Parsing\DTO;
+namespace App\Service\Parsing\Instruction\DTO;
 
 readonly class RequestData
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Parsing\DTO;
+namespace App\Service\Parsing\Instruction\DTO;
 
 /**
  * Параметру запроса может соответствовать значение, получаемое из другого связанного запроса,
@@ -9,12 +9,14 @@ namespace App\Service\Parsing\DTO;
 class RequestParameterData
 {
     public function __construct(
-        private readonly string             $key,
+        private readonly string $key,
 
-        private readonly mixed              $value,
+        private readonly mixed  $value,
 
-        private ParsingInstructionData|null $externalSource = null,
-    ) {}
+        private string|null     $externalSourceId = null,
+    )
+    {
+    }
 
     public function getKey(): string
     {
@@ -26,14 +28,15 @@ class RequestParameterData
         return $this->value;
     }
 
-    public function getExternalSource(): ParsingInstructionData
+    public function getExternalSourceId(): string|null
     {
-        return $this->externalSource;
+        return $this->externalSourceId;
     }
 
-    public function setExternalSource(ParsingInstructionData $instructionData): static
+    public function setExternalSourceId(string $instructionData): static
     {
-        $this->externalSource = $instructionData;
+        $this->externalSourceId = $instructionData;
         return $this;
     }
+
 }

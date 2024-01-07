@@ -24,14 +24,15 @@ class GroupTag
     #[ORM\OneToMany(mappedBy: 'groupTag', targetEntity: OutputSchema::class)]
     private Collection $outputSchemas;
 
-    public function __toString(): string {
-        return $this->code;
-    }
-
     public function __construct()
     {
         $this->dataSchemas = new ArrayCollection();
         $this->outputSchemas = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->code;
     }
 
     public function getId(): int|null

@@ -36,7 +36,7 @@ final readonly class DataSourceAdapter implements DataSourceInterface
 
                 $content = $responseRecord->getContent();
 
-                $value = m($content)(get_by_dot_keys($path));
+                $value = m($content)(get_by_dot_keys($path))();
 
             }
 

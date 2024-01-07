@@ -46,7 +46,8 @@ class DataSchema
         $this->responseFields = new ArrayCollection();
     }
 
-    public function __toString(): string {
+    public function __toString(): string
+    {
         return $this->name . ' ' . $this->id;
     }
 

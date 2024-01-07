@@ -6,10 +6,12 @@ use App\Repository\Common\Modifier\ModifierInterface;
 use App\Repository\DataSchema\DataSchemaRepository;
 use Doctrine\ORM\QueryBuilder;
 
-class ExcludedByIdsModifier implements ModifierInterface
+class ExcludeByIdsModifier implements ModifierInterface
 {
 
-    public function __construct(private array $ids) {}
+    public function __construct(private array $ids)
+    {
+    }
 
     public function apply(QueryBuilder $queryBuilder): void
     {

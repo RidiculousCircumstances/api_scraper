@@ -22,7 +22,7 @@ class EnumValidator extends ConstraintValidator
             throw new \RuntimeException('The "enumType" option of the Enum constraint should be a Enum.');
         }
 
-        if (null === $value) {
+        if ($value === null) {
             return;
         }
 
@@ -31,7 +31,7 @@ class EnumValidator extends ConstraintValidator
             $property = 'value';
         }
 
-        $enumCases = \array_map(static fn ($item) => $item->{$property}, $enumType::cases());
+        $enumCases = \array_map(static fn($item) => $item->{$property}, $enumType::cases());
 
         if (!$constraint->message) {
             $constraint->message = 'The enum case "{{ value }}" is not valid. Valid cases are: "{{ choices }}"';

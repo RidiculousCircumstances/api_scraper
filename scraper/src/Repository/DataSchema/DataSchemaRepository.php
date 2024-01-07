@@ -5,7 +5,7 @@ namespace App\Repository\DataSchema;
 use App\Entity\DataSchema;
 use App\Entity\GroupTag;
 use App\Repository\Common\Modifier\ModifierManager;
-use App\Repository\DataSchema\Modifier\ExcludedByIdsModifier;
+use App\Repository\DataSchema\Modifier\ExcludeByIdsModifier;
 use App\Repository\DataSchema\Modifier\GroupModifier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -48,7 +48,7 @@ class DataSchemaRepository extends ServiceEntityRepository
 
         $this->modifierManager
             ->add(new GroupModifier($groupTag))
-            ->add(new ExcludedByIdsModifier($excludeIds))
+            ->add(new ExcludeByIdsModifier($excludeIds))
             ->apply($qb);
 
         return $qb

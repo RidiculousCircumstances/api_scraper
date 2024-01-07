@@ -11,19 +11,20 @@ readonly class StartParsingCommand
     public function __construct(
 
         #[Type('integer')]
-        private int    $schema,
+        private int       $schema,
 
         #[Type('string')]
         #[Enum(enumType: OutputFormatsEnum::class)]
-        private string $format,
+        private string    $format,
 
         #[Type('string')]
-        private string $path,
+        private string    $path,
 
         #[Type('boolean')]
-        private bool|null   $useProxy,
+        private bool|null $useProxy,
 
-    ) {
+    )
+    {
     }
 
     public function getSchema(): int

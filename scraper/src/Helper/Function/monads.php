@@ -7,25 +7,25 @@
  */
 function m($value): Closure
 {
-    return function(callable $cb = null) use($value) {
+    return function (callable $cb = null) use ($value) {
 
-        if(is_null($cb)) {
+        if (is_null($cb)) {
 
-            if((!$value instanceof Closure)) {
+            if ((!$value instanceof Closure)) {
                 return $value;
             }
 
             $result = $value();
 
-            while($result instanceof Closure) {
+            while ($result instanceof Closure) {
                 $result = $result();
             }
 
             return $result;
         }
 
-        return m(function() use($cb, $value) {
-            if((!$value instanceof Closure)) {
+        return m(function () use ($cb, $value) {
+            if ((!$value instanceof Closure)) {
                 return $cb($value);
             }
             $result = $value();
@@ -45,7 +45,7 @@ function m($value): Closure
  */
 function maybe_key($key, $default = []): Closure
 {
-    return function($array) use($key, $default) {
+    return function ($array) use ($key, $default) {
 
         if (!is_array($array) || !array_key_exists($key, $array)) {
             return $default;
@@ -56,9 +56,9 @@ function maybe_key($key, $default = []): Closure
 
 function maybe_method(string $method, $default = null, array $args = []): Closure
 {
-    return function($object) use($method, $default, $args) {
+    return function ($object) use ($method, $default, $args) {
 
-        if(!is_object($object) || !method_exists($object, $method)) {
+        if (!is_object($object) || !method_exists($object, $method)) {
             return $default;
         }
 
@@ -75,12 +75,12 @@ function get_by_dot_keys(string $keys): Closure
 {
     $path = explode('.', $keys);
 
-    return function(array $array) use($path) {
+    return function (array $array) use ($path) {
 
         $mArray = m($array);
 
-        foreach($path as $key) {
-            $mArray = $mArray(function($resultedArray) use($key) {
+        foreach ($path as $key) {
+            $mArray = $mArray(function ($resultedArray) use ($key) {
                 return $resultedArray[$key];
             });
         }
@@ -97,7 +97,7 @@ function get_by_dot_keys(string $keys): Closure
  */
 function set_by_dot_keys(string $keys, $value): Closure
 {
-    return function(array $array) use($keys, $value) {
+    return function (array $array) use ($keys, $value) {
         $keys = explode('.', $keys);
         $reference = &$array;
         foreach ($keys as $key) {

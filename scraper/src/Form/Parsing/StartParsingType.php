@@ -14,7 +14,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class StartParsingType extends AbstractType
 {
-    public function __construct(private readonly UrlGeneratorInterface $urlGenerator) {}
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
+    {
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -24,20 +26,20 @@ class StartParsingType extends AbstractType
          * @var array<DataSchema> $dataSchemas
          */
         $dataSchemas = $mOptionsData
-            (maybe_key('schemaEntities'))();
+        (maybe_key('schemaEntities'))();
 
         $dataSchemaChoices = [];
 
-        foreach($dataSchemas as $dataSchema) {
+        foreach ($dataSchemas as $dataSchema) {
             $dataSchemaChoices[$dataSchema->getName()] = $dataSchema->getId();
         }
 
         $formats = $mOptionsData
-            (maybe_key('availableFormats'))();
+        (maybe_key('availableFormats'))();
 
         $formatChoices = [];
 
-        foreach($formats as $format) {
+        foreach ($formats as $format) {
             $formatChoices[$format] = $format;
         }
 

@@ -28,14 +28,14 @@ class ResponseField
     #[ORM\ManyToMany(targetEntity: OutputSchema::class, mappedBy: 'responseFields')]
     private Collection $outputSchemas;
 
-
-    public function __toString(): string {
-        return $this->dataSchema->getName() . ': ' . $this->dataPath;
-    }
-
     public function __construct()
     {
         $this->outputSchemas = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->dataSchema->getName() . ': ' . $this->dataPath;
     }
 
     public function getId(): int|null

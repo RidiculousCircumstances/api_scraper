@@ -26,7 +26,8 @@ class RequestParameter
     #[ORM\ManyToOne(inversedBy: 'externalRequestParameters')]
     private DataSchema|null $externalSchema = null;
 
-    public function __toString(): string {
+    public function __toString(): string
+    {
         return $this->key;
     }
 

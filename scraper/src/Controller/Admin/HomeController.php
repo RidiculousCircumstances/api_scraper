@@ -17,7 +17,9 @@ class HomeController extends AbstractDashboardController
 
     public function __construct(
         private readonly ParsingFormService $formService
-    ) {}
+    )
+    {
+    }
 
     #[Route('/home', name: 'home')]
     public function index(): Response

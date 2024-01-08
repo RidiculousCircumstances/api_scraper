@@ -8,12 +8,10 @@ use App\Entity\DataSchema;
 use App\Entity\GroupTag;
 use App\Entity\RequestParameter;
 use App\Migrations\Factory\ContainerAwareInterface;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\ORM\EntityManager;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Auto-generated Migrations: Please modify to your needs!
@@ -22,11 +20,6 @@ final class Version20240108681555 extends AbstractMigration implements Container
 {
 
     private ContainerInterface $container;
-
-    public function __construct(Connection $connection, private readonly LoggerInterface $logger)
-    {
-        parent::__construct($connection, $logger);
-    }
 
     public function getDescription(): string
     {
@@ -79,7 +72,7 @@ final class Version20240108681555 extends AbstractMigration implements Container
             'timestamp' => '{{:timestamp}}',
             'secret' => '{{:secret}}',
         ];
-        $url = 'https://api.drom.ru/v1.3/mycars/fetch';
+        $url = 'https://api.drom.ru/v1.2/bulls/search';
 
         $groupTag = new GroupTag();
         $groupTag->setCode('drom');

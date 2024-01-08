@@ -63,7 +63,9 @@ class StartParsingHandler implements LoggerAwareInterface
             try {
                 $response = $this->client->requestSource($request);
             } catch (ClientExceptionInterface $exception) {
-                $msg = $exception->getMessage();
+//                $msg = $exception->getResponse()->getBody()->getContents();
+//                $a = json_decode($msg, true, 512, JSON_THROW_ON_ERROR);
+//                $aa = 1;
                 /**
                  *TODO:Реализовать слушателя с выводом результата в ui
                  */

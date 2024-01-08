@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GroupTagRepository::class)]
+#[ORM\UniqueConstraint("group_code", ["code"])]
 class GroupTag
 {
     #[ORM\Id]

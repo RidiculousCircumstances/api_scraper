@@ -3,10 +3,13 @@
 namespace App\Service\Parsing\Instruction;
 
 use App\Entity\DataSchema;
+use App\Entity\RequestParameter;
+use App\Entity\ResponseField;
+use App\Message\Parsing\Enum\HttpMethodsEnum;
 use App\Message\Parsing\StartParsingCommand;
 use App\Repository\DataSchema\DataSchemaRepository;
 use App\Service\Parsing\Instruction\DTO\ParsingInstructionData;
-use App\Service\Parsing\Instruction\DTO\ParsingInstructionStackData;
+use App\Service\Parsing\Instruction\DTO\ParsingInstructionQueueData;
 use App\Service\Parsing\Instruction\DTO\RequestData;
 use App\Service\Parsing\Instruction\DTO\RequestParameterData;
 use App\Service\Parsing\Instruction\DTO\ResponseData;
@@ -25,7 +28,7 @@ final readonly class PrepareParsingInstructionService
      * Преобразовать схему запроса в связанную структуру, которую можно последовательно обойти, отправляя запросы
      * и используя результат предыдущего запроса для последующего
      */
-    public function prepareParsingInstruction(StartParsingCommand $startParsingCommand): ParsingInstructionStackData
+    public function prepareParsingInstruction(StartParsingCommand $startParsingCommand): ParsingInstructionQueueData
     {
 
         $repo = $this->dataSchemaRepository;
@@ -36,21 +39,20 @@ final readonly class PrepareParsingInstructionService
             throw new RuntimeException('[PrepareParsingInstructionService] DataSchema with id [' . $startParsingCommand->getSchema() . '] not found');
         }
 
-        return $this->resolveInstruction($schema);
+        return $this->resolveInstruction($schema, $startParsingCommand);
 
     }
 
-    private function resolveInstruction(DataSchema $schema): ParsingInstructionStackData
+    private function resolveInstruction(DataSchema $schema, StartParsingCommand $command): ParsingInstructionQueueData
     {
 
-        $stack = new ParsingInstructionStackData();
+        $queue = new ParsingInstructionQueueData();
 
-        $resolve = static function (DataSchema $schema, ParsingInstructionStackData $stack) use (&$resolve): ParsingInstructionData {
+        $resolve = static function (DataSchema $schema, ParsingInstructionQueueData $queue) use (&$resolve, $command): ParsingInstructionData {
 
             $requestParameters = $schema->getRequestParameters();
-            $requestParameterDataArray = [];
-            foreach ($requestParameters as $parameter) {
 
+            $requestParameterDataArray = $requestParameters->map(function (RequestParameter $parameter) use ($resolve, $queue) {
                 $externalSchema = $parameter->getExternalSchema();
 
                 $requestParameterData = new RequestParameterData(
@@ -58,45 +60,44 @@ final readonly class PrepareParsingInstructionService
                 );
 
                 if ($externalSchema !== null) {
-                    $externalSchemaData = $resolve($externalSchema);
+                    $externalSchemaData = $resolve($externalSchema, $queue);
                     $requestParameterData->setExternalSourceId($externalSchemaData->getFqcn());
                 }
 
-                $requestParameterDataArray[] = $requestParameterData;
-
-            }
+                return $requestParameterData;
+            });
 
             $requestData = new RequestData(
                 targetUrl: $schema->getUrl(),
-                httpMethod: 'get',
-                requestParameters: $requestParameterDataArray
+                httpMethod: HttpMethodsEnum::GET,
+                requestParameters: $requestParameterDataArray->toArray()
             );
 
             $responseFields = $schema->getResponseFields();
 
-            $responseFieldDataArray = [];
-
-            foreach ($responseFields as $field) {
-                $responseFieldDataArray[] = new ResponseFieldData(
-                    responsePath: $field->getDataPath(),
-                    outputName: $field->getOutputName()
+            $responseFieldDataArray = $responseFields->map(function (ResponseField $responseField) {
+                return new ResponseFieldData(
+                    responsePath: $responseField->getDataPath(),
+                    outputName: $responseField->getOutputName()
                 );
-            }
+            });
 
-            $responseData = new ResponseData($responseFieldDataArray);
+            $responseData = new ResponseData($responseFieldDataArray->toArray());
 
             $parsingInstructionData = new ParsingInstructionData(
                 requestData: $requestData,
-                responseData: $responseData
+                responseData: $responseData,
+                secret: $command->getSecret(),
+                method: HttpMethodsEnum::from($command->getMethod())
             );
 
-            $stack->put($parsingInstructionData);
+            $queue->put($parsingInstructionData);
 
             return $parsingInstructionData;
         };
 
-        $resolve($schema, $stack);
+        $resolve($schema, $queue);
 
-        return $stack;
+        return $queue;
     }
 }

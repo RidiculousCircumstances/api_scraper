@@ -2,27 +2,29 @@
 
 namespace App\Service\Parsing\Instruction\DTO;
 
+use App\Message\Parsing\Enum\HttpMethodsEnum;
+
 readonly class RequestData
 {
     public function __construct(
-        private string $targetUrl,
+        private string          $targetUrl,
 
-        private string $httpMethod,
+        private HttpMethodsEnum $httpMethod,
 
         /**
          * @var array<RequestParameterData> $requestParameters
          */
-        private array $requestParameters,
-
-
-    ) {}
+        private array           $requestParameters,
+    )
+    {
+    }
 
     public function getTargetUrl(): string
     {
         return $this->targetUrl;
     }
 
-    public function getHttpMethod(): string
+    public function getHttpMethod(): HttpMethodsEnum
     {
         return $this->httpMethod;
     }
@@ -31,6 +33,5 @@ readonly class RequestData
     {
         return $this->requestParameters;
     }
-
 
 }

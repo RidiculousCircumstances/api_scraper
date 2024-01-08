@@ -3,6 +3,7 @@
 namespace App\Message\Parsing;
 
 use App\Helper\Attribute\Constraints\Enum\Enum;
+use App\Message\Parsing\Enum\HttpMethodsEnum;
 use App\Message\Parsing\Enum\OutputFormatsEnum;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -11,17 +12,23 @@ readonly class StartParsingCommand
     public function __construct(
 
         #[Type('integer')]
-        private int       $schema,
+        private int         $schema,
 
         #[Type('string')]
         #[Enum(enumType: OutputFormatsEnum::class)]
-        private string    $format,
+        private string      $format,
 
         #[Type('string')]
-        private string    $path,
+        private string      $path,
 
         #[Type('boolean')]
-        private bool|null $useProxy,
+        private bool|null   $useProxy,
+
+        #[Type('string')]
+        private string|null $secret,
+
+        #[Enum(enumType: HttpMethodsEnum::class)]
+        private string      $method,
 
     )
     {
@@ -45,6 +52,16 @@ readonly class StartParsingCommand
     public function getUseProxy(): bool
     {
         return (bool)$this->useProxy;
+    }
+
+    public function getSecret(): ?string
+    {
+        return $this->secret;
+    }
+
+    public function getMethod(): string
+    {
+        return $this->method;
     }
 
 }

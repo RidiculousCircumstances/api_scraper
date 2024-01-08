@@ -43,6 +43,15 @@ class StartParsingType extends AbstractType
             $formatChoices[$format] = $format;
         }
 
+        $methods = $mOptionsData
+        (maybe_key('availableMethods'))();
+        
+        $methodChoices = [];
+
+        foreach ($methods as $method) {
+            $methodChoices[$method] = $method;
+        }
+
         $builder
             ->add('schema', ChoiceType::class, [
                 'choices' => $dataSchemaChoices,
@@ -57,6 +66,17 @@ class StartParsingType extends AbstractType
             ->add('path', TextType::class, [
                 'label' => 'Сохранять в: ',
                 'attr' => ['placeholder' => 'Укажите путь от корня...']
+            ])
+            ->add('method', ChoiceType::class, [
+                'required' => true,
+                'choices' => $methodChoices,
+                'label' => 'HTTP Метод: ',
+                'placeholder' => 'Выбрать...'
+            ])
+            ->add('secret', TextType::class, [
+                'required' => false,
+                'label' => 'Секрет для подписи запроса: ',
+                'attr' => ['placeholder' => 'Укажите секрет...']
             ])
             ->add('useProxy', CheckboxType::class, [
                 'required' => false,

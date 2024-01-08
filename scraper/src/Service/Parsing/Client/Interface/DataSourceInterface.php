@@ -6,7 +6,7 @@ interface DataSourceInterface
 {
     public function getUrl(): string;
 
-    public function getBody(): array;
+    public function getBody(): mixed;
 
     public function getMethod(): string;
 

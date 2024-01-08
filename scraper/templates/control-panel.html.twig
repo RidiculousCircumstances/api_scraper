@@ -6,36 +6,48 @@
 {% block main %}
 
     {{ form_start(form) }}
-        <div class="row">
-            <div class="col-md-7 col-xxl-6">
-                <br>
-                {{ form_errors(form) }}
+    <div class="row">
+        <div class="col-md-7 col-xxl-6">
+            <br>
+            {{ form_errors(form) }}
 
-                <div class="form-group">
-                    <div class="form-widget">
-                        {{ form_row(form.schema) }}
-                    </div>
+            <div class="form-group">
+                <div class="form-widget">
+                    {{ form_row(form.schema) }}
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <div class="form-widget">
-                        {{ form_row(form.format) }}
-                    </div>
+            <div class="form-group">
+                <div class="form-widget">
+                    {{ form_row(form.method) }}
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <div class="form-widget">
-                        {{ form_row(form.path) }}
-                    </div>
+            <div class="form-group">
+                <div class="form-widget">
+                    {{ form_row(form.secret) }}
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <div class="form-widget">
-                        {{ form_row(form.useProxy) }}
-                    </div>
+            <div class="form-group">
+                <div class="form-widget">
+                    {{ form_row(form.format) }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-widget">
+                    {{ form_row(form.path) }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-widget">
+                    {{ form_row(form.useProxy) }}
                 </div>
             </div>
         </div>
+    </div>
 
     {{ form_end(form) }}
 {% endblock %}

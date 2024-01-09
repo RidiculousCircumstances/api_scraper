@@ -40,10 +40,10 @@ final readonly class ScraperClient implements ApiScraperClientInterface
             $requestData = $schema->getRequestData();
 
             $payload = PayloadTransformPipe::payload($requestData)
-                ->add(new TimeStamper())
-                ->add(new ExternalValueLoader($registry))
-                ->add(new PageIncrementor($this->ctx))
-                ->add(new PayloadSigner($this->instruction->getSecret()))
+                ->with(new TimeStamper())
+                ->with(new ExternalValueLoader($registry))
+                ->with(new PageIncrementor($this->ctx))
+                ->with(new PayloadSigner($this->instruction->getSecret()))
                 ->exec();
 
             $payloadBuilder = RequestPayloadBuilderFactory::getBuilder($this->instruction->getMethod());
@@ -52,7 +52,7 @@ final readonly class ScraperClient implements ApiScraperClientInterface
                 ->setDelay($this->instruction->getDelay());
 
             try {
-                $response = $this->httpClient->requestSource($request);
+                $response = $this->httpClient->request($request);
 
                 $msg = new ScraperMessage(
                     payload: $response,
@@ -62,6 +62,7 @@ final readonly class ScraperClient implements ApiScraperClientInterface
                 if ($this->successRecognizer->recognize($response)) {
                     $msg->setSuccess();
                 }
+
                 $this->successRecognizer->setPrevious($response);
 
                 $this->ctx->setMessage($msg);

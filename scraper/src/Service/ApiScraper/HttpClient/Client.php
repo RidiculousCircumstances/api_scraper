@@ -20,7 +20,7 @@ readonly class Client implements ClientInterface
      * @throws GuzzleException
      * @throws \JsonException
      */
-    public function requestSource(DataSourceInterface $source): array
+    public function request(DataSourceInterface $source): array
     {
         $payload = $source->getBody();
         $url = $source->getUrl();

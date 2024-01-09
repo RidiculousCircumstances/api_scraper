@@ -39,7 +39,7 @@ class DifferenceSuccessRecognizer implements SuccessRecognizerInterface
         $similarityAbs = 0;
         for ($i = 0; $i < $count; $i++) {
             /**
-             * Скипаем произвольные айтемы. Точность ниже, производительность выше
+             * Скипаем произвольные айтемы. Точность примерно та же, производительность выше
              */
             if ($i % 2 === 0 || $i % 3 === 0) {
                 continue;

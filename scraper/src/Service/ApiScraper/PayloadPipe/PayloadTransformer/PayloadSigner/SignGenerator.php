@@ -4,6 +4,9 @@ namespace App\Service\ApiScraper\PayloadPipe\PayloadTransformer\PayloadSigner;
 
 use Ds\Map;
 
+/**
+ * Генератор подписи Drom Api, калька с дкомпилированных исходников мобильного приложения
+ */
 class SignGenerator
 {
     private Map|null $parameters = null;
@@ -11,7 +14,7 @@ class SignGenerator
     /**
      * @param string $secret
      */
-    public function __construct(#[\SensitiveParameter] private readonly string $secret)
+    public function __construct(private readonly string $secret)
     {
         $this->parameters = new Map();
     }

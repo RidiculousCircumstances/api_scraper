@@ -7,7 +7,7 @@ use App\Service\ApiScraper\Context\ScraperStateEnum;
 use App\Service\ApiScraper\PayloadPipe\Interface\PayloadTransformerInterface;
 
 /**
- * Увеличивает значение поля с каждым вызовом
+ * Увеличивает значение поля с каждым вызовом. Используется для пагинации
  */
 class PageIncrementor implements PayloadTransformerInterface
 {

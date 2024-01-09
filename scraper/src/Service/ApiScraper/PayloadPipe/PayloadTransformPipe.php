@@ -24,7 +24,7 @@ final class PayloadTransformPipe
         return $static;
     }
 
-    public function add(PayloadTransformerInterface $payloadTransformer): self
+    public function with(PayloadTransformerInterface $payloadTransformer): self
     {
         $this->transformerQueue->push($payloadTransformer);
         return $this;

@@ -7,6 +7,7 @@ use App\Service\ApiScraper\PayloadPipe\Interface\PayloadTransformerInterface;
 
 /**
  * Должен добавляться последним, после всех трансформаций
+ * Подписывает полезную нагрузку запроса для drom
  */
 class PayloadSigner implements PayloadTransformerInterface
 {

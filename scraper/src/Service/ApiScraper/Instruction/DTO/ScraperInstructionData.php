@@ -27,11 +27,6 @@ class ScraperInstructionData
         $this->schemasList = new SplDoublyLinkedList();
     }
 
-    public function getSchemasQueue(): SplDoublyLinkedList
-    {
-        return $this->schemasList;
-    }
-
     public function push(ParsingSchemaData $instructionData): self
     {
         $this->schemasList->push($instructionData);

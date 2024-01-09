@@ -63,12 +63,12 @@ final class Version20240108681555 extends AbstractMigration implements Container
             'unsold' => '1',
             'withoutDocuments' => '2',
             'onlyWithBulletinsCount' => 'false',
-            'page' => '0',
             'pretty' => 'true',
             'thumbnailsWidth[]' => ['320', '600'],
             'version' => '4',
             'withModelsCount' => 'true',
 
+            'page' => '{{:page}}',
             'timestamp' => '{{:timestamp}}',
             'secret' => '{{:secret}}',
         ];

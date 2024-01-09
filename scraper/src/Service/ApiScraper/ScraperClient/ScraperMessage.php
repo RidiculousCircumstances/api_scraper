@@ -5,10 +5,10 @@ namespace App\Service\ApiScraper\ScraperClient;
 class ScraperMessage
 {
     public function __construct(
-        private                 $message,
-        private readonly string $url,
-        private bool            $isError = false,
-
+        private           $payload,
+        private string    $url,
+        private bool|null $isError = null,
+        private bool|null $success = null,
     )
     {
     }
@@ -16,9 +16,9 @@ class ScraperMessage
     /**
      * @return mixed
      */
-    public function getMessage(): mixed
+    public function getPayload(): mixed
     {
-        return $this->message;
+        return $this->payload;
     }
 
     public function getUrl(): string
@@ -26,9 +26,38 @@ class ScraperMessage
         return $this->url;
     }
 
-    public function isError(): bool
+    public function isError(): bool|null
     {
         return $this->isError;
+    }
+
+    public function hasSuccess(): bool|null
+    {
+        return $this->success;
+    }
+
+    /**
+     * @param mixed $payload
+     */
+    public function setPayload($payload): void
+    {
+        $this->payload = $payload;
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
+    }
+
+    public function setIsError(): void
+    {
+        $this->isError = true;
+        $this->success = false;
+    }
+
+    public function setSuccess(): void
+    {
+        $this->success = true;
     }
 
 

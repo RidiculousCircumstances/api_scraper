@@ -3,7 +3,7 @@
 namespace App\Service\ApiScraper\Instruction\DTO;
 
 use App\Message\Parsing\Enum\HttpMethodsEnum;
-use Ds\Queue;
+use SplDoublyLinkedList;
 
 /**
  * Основной объект для выполнения парсинга. Содержит последовательную коллекцию связанных запросов
@@ -11,34 +11,56 @@ use Ds\Queue;
 class ScraperInstructionData
 {
     /**
-     * @var Queue<ParsingSchemaData> $schemasQueue
+     * @var SplDoublyLinkedList<ParsingSchemaData> $schemasList
      */
-    private Queue $schemasQueue;
+    private SplDoublyLinkedList $schemasList;
 
+    private bool $loopPassed = false;
 
     public function __construct(
-        private HttpMethodsEnum $method,
-        private string|null     $secret = null,
-        private int             $delay = 100,
+        private readonly HttpMethodsEnum $method,
+        private string|null              $secret = null,
+        private readonly int             $delay = 100,
     )
     {
         $this->secret ??= '';
-        $this->schemasQueue = new Queue();
+        $this->schemasList = new SplDoublyLinkedList();
     }
 
-    public function getSchemasQueue(): Queue
+    public function getSchemasQueue(): SplDoublyLinkedList
     {
-        return $this->schemasQueue;
+        return $this->schemasList;
     }
 
-    public function put(ParsingSchemaData $instructionData): void
+    public function push(ParsingSchemaData $instructionData): self
     {
-        $this->schemasQueue[] = $instructionData;
+        $this->schemasList->push($instructionData);
+        $this->schemasList->rewind();
+        return $this;
     }
 
-    public function pop(): ParsingSchemaData
+    public function rewind(): void
     {
-        return $this->schemasQueue->pop();
+        $this->schemasList->rewind();
+        $this->loopPassed = false;
+    }
+
+    public function extract(): ParsingSchemaData
+    {
+        if ($this->loopPassed) {
+            $this->loopPassed = false;
+        }
+
+        $list = $this->schemasList;
+        $current = $list->current();
+        $list->next();
+
+        if (!$list->valid()) {
+            $list->rewind();
+            $this->loopPassed = true;
+        }
+
+        return $current;
     }
 
     public function getSecret(): string|null
@@ -46,9 +68,9 @@ class ScraperInstructionData
         return $this->secret;
     }
 
-    public function isEmpty(): bool
+    public function executed(): bool
     {
-        return $this->schemasQueue->isEmpty();
+        return $this->loopPassed;
     }
 
     public function getMethod(): HttpMethodsEnum

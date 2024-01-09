@@ -2,7 +2,7 @@
 
 namespace App\Service\ApiScraper\Context;
 
-use App\Service\ApiScraper\ScraperClient\ScraperClient;
+use App\Service\ApiScraper\ScraperClient\Interface\ApiScraperClientInterface;
 use App\Service\ApiScraper\ScraperClient\ScraperMessage;
 
 class ScraperContext
@@ -10,7 +10,7 @@ class ScraperContext
 
     private ScraperStateEnum $state = ScraperStateEnum::RUNNING;
 
-    private ScraperClient $scraper;
+    private ApiScraperClientInterface $scraper;
 
     private ScraperMessage|null $message = null;
 
@@ -26,12 +26,12 @@ class ScraperContext
         $this->state = $state;
     }
 
-    public function getScraper(): ScraperClient
+    public function getScraper(): ApiScraperClientInterface
     {
         return $this->scraper;
     }
 
-    public function setScraper(ScraperClient $scraper): self
+    public function setScraper(ApiScraperClientInterface $scraper): self
     {
         $this->scraper = $scraper;
         return $this;
@@ -39,7 +39,9 @@ class ScraperContext
 
     public function getMessage(): ScraperMessage|null
     {
-        return $this->message;
+        $msg = $this->message;
+        $this->message = null;
+        return $msg;
     }
 
     public function setMessage(ScraperMessage|null $message): self

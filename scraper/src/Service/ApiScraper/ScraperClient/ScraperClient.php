@@ -14,27 +14,29 @@ use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\TimeStamper;
 use App\Service\ApiScraper\PayloadPipe\PayloadTransformPipe;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRecord;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
+use App\Service\ApiScraper\ScraperClient\Interface\ApiScraperClientInterface;
+use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\Interface\SuccessRecognizerInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 
-final readonly class ScraperClient
+final readonly class ScraperClient implements ApiScraperClientInterface
 {
 
     public function __construct(
-        private ScraperContext         $ctx,
-        private ScraperInstructionData $instruction,
-        private ClientInterface        $httpClient
+        private ScraperContext             $ctx,
+        private ScraperInstructionData     $instruction,
+        private ClientInterface            $httpClient,
+        private SuccessRecognizerInterface $successRecognizer
     )
     {
     }
 
-    public function sendRequest(): void
+    public function execInstruction(): void
     {
         $registry = new ResponseRegistry();
+        $this->instruction->rewind();
 
-        while (!$this->instruction->isEmpty()) {
-
-            $schema = $this->instruction->pop();
-
+        while (!$this->instruction->executed()) {
+            $schema = $this->instruction->extract();
             $requestData = $schema->getRequestData();
 
             $payload = PayloadTransformPipe::payload($requestData)
@@ -51,10 +53,18 @@ final readonly class ScraperClient
 
             try {
                 $response = $this->httpClient->requestSource($request);
-                $this->ctx->setMessage(new ScraperMessage(
-                    $response,
-                    $request->getUrl(),
-                ));
+
+                $msg = new ScraperMessage(
+                    payload: $response,
+                    url: $request->getUrl(),
+                );
+
+                if ($this->successRecognizer->recognize($response)) {
+                    $msg->setSuccess();
+                }
+                $this->successRecognizer->setPrevious($response);
+
+                $this->ctx->setMessage($msg);
 
                 $registry->add(new ResponseRecord(
                     requestId: $schema->getFqcn(),
@@ -63,11 +73,10 @@ final readonly class ScraperClient
             } catch (ClientExceptionInterface $exception) {
                 $this->ctx
                     ->setMessage(new ScraperMessage(
-                        $exception,
-                        $request->getUrl(),
-                        true
+                        payload: $exception,
+                        url: $request->getUrl(),
+                        isError: true
                     ));
-
             }
 
         }

@@ -24,7 +24,13 @@ class PageIncrementor implements PayloadTransformerInterface
             if (!preg_match($this->pattern, $parameter->getValue())) {
                 continue;
             }
-            self::$currentValue++;
+
+            if (self::$currentValue === null) {
+                self::$currentValue = 1;
+            } else {
+                self::$currentValue++;
+            }
+
             $payload[$parameter->getKey()] = self::$currentValue;
             break;
         }

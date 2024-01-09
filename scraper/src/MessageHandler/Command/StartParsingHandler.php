@@ -1,6 +1,6 @@
 <?php
 
-namespace App\MessageHandler\Command\Parsing;
+namespace App\MessageHandler\Command;
 
 
 use App\Message\Parsing\StartParsingCommand;
@@ -36,10 +36,10 @@ class StartParsingHandler implements LoggerAwareInterface
 
         while ($ctx->getState() === ScraperStateEnum::RUNNING) {
             $scraper = $ctx->getScraper();
-            $scraper->sendRequest();
+            $scraper->execInstruction();
             $msg = $ctx->getMessage();
 
-            if (!$msg || $msg->isError()) {
+            if (!$msg || $msg->isError() || $msg->hasSuccess()) {
                 $ctx->setState(ScraperStateEnum::STOPPED);
             }
 

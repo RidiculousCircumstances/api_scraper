@@ -93,7 +93,7 @@ final readonly class PrepareParsingInstructionService
                 responseData: $responseData
             );
 
-            $instruction->put($parsingSchemaData);
+            $instruction->push($parsingSchemaData);
 
             return $parsingSchemaData;
         };

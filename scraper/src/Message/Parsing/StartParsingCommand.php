@@ -30,6 +30,9 @@ readonly class StartParsingCommand
         #[Enum(enumType: HttpMethodsEnum::class)]
         private string      $method,
 
+        #[Type('integer')]
+        private int|null    $delay,
+
     )
     {
     }
@@ -62,6 +65,11 @@ readonly class StartParsingCommand
     public function getMethod(): string
     {
         return $this->method;
+    }
+
+    public function getDelay(): int|null
+    {
+        return $this->delay;
     }
 
 }

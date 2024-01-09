@@ -6,6 +6,7 @@ use App\Form\Parsing\StartParsingType;
 use App\Message\Parsing\Enum\HttpMethodsEnum;
 use App\Repository\DataSchema\DataSchemaRepository;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 
 readonly class ParsingFormService
 {
@@ -14,7 +15,7 @@ readonly class ParsingFormService
     {
     }
 
-    public function createStartParsingForm(): \Symfony\Component\Form\FormInterface
+    public function createStartParsingForm(): FormInterface
     {
         $schemas = $this->dataSchemaRepository->findAll();
 
@@ -27,7 +28,8 @@ readonly class ParsingFormService
             ],
             'secret' => '',
             'path' => '/home',
-            'useProxy' => false
+            'useProxy' => false,
+            'delay' => 500
         ])->getForm();
 
     }

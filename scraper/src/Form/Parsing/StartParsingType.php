@@ -6,6 +6,7 @@ use App\Entity\DataSchema;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -45,7 +46,7 @@ class StartParsingType extends AbstractType
 
         $methods = $mOptionsData
         (maybe_key('availableMethods'))();
-        
+
         $methodChoices = [];
 
         foreach ($methods as $method) {
@@ -77,6 +78,10 @@ class StartParsingType extends AbstractType
                 'required' => false,
                 'label' => 'Секрет для подписи запроса: ',
                 'attr' => ['placeholder' => 'Укажите секрет...']
+            ])
+            ->add('delay', IntegerType::class, [
+                'required' => false,
+                'label' => 'Задержка между запросами, ms: '
             ])
             ->add('useProxy', CheckboxType::class, [
                 'required' => false,

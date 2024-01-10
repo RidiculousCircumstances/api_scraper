@@ -7,7 +7,7 @@ use App\Service\ApiScraper\HttpClient\Interface\ClientInterface;
 use App\Service\ApiScraper\HttpClient\RequestAdapter;
 use App\Service\ApiScraper\HttpClient\RequestPayloadBuilder\RequestPayloadBuilderFactory;
 use App\Service\ApiScraper\Instruction\DTO\ScraperInstructionData;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\ExternalValueLoader;
+use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\ExternalValueLoader\ExternalValueLoader;
 use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\PageIncrementor;
 use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\PayloadSigner\PayloadSigner;
 use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\TimeStamper;
@@ -33,23 +33,25 @@ final readonly class ScraperClient implements ApiScraperClientInterface
     public function execInstruction(): void
     {
         $registry = new ResponseRegistry();
-        $this->instruction->rewind();
+        $instruction = $this->instruction;
 
-        while (!$this->instruction->executed()) {
-            $schema = $this->instruction->extract();
+        $instruction->rewind();
+
+        while (!$instruction->executed()) {
+            $schema = $instruction->extract();
             $requestData = $schema->getRequestData();
 
             $payload = PayloadTransformPipe::payload($requestData)
                 ->with(new TimeStamper())
-                ->with(new ExternalValueLoader($registry))
+                ->with(new ExternalValueLoader($registry, $instruction))
                 ->with(new PageIncrementor($this->ctx))
-                ->with(new PayloadSigner($this->instruction->getSecret()))
+                ->with(new PayloadSigner($instruction->getSecret()))
                 ->exec();
 
-            $payloadBuilder = RequestPayloadBuilderFactory::getBuilder($this->instruction->getMethod());
+            $payloadBuilder = RequestPayloadBuilderFactory::getBuilder($instruction->getMethod());
             $request = RequestAdapter::from($schema)
                 ->setBody($payloadBuilder->build($payload))
-                ->setDelay($this->instruction->getDelay());
+                ->setDelay($instruction->getDelay());
 
             try {
                 $response = $this->httpClient->request($request);
@@ -62,8 +64,6 @@ final readonly class ScraperClient implements ApiScraperClientInterface
                 if ($this->successRecognizer->recognize($response)) {
                     $msg->setSuccess();
                 }
-
-                $this->successRecognizer->setPrevious($response);
 
                 $this->ctx->setMessage($msg);
 

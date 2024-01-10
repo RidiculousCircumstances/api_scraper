@@ -19,14 +19,10 @@ class DifferenceSuccessRecognizer implements SuccessRecognizerInterface
         $this->comparator = new SmithWatermanGotoh();
     }
 
-    public function setPrevious(array $prevData): void
-    {
-        self::$previousObject = $prevData;
-    }
-
     public function recognize(array $data): bool
     {
         if (self::$previousObject === null) {
+            self::$previousObject = $data;
             return false;
         }
         $prevArr = str_split(urldecode(http_build_query(self::$previousObject)), self::SLICE_CAPACITY);

@@ -13,7 +13,7 @@ class UrlSegmentReplacerTest extends TestCase
 {
     public static function payloadProvider(): array
     {
-        return PayloadDataProvider::providePayload();
+        return UrlSegmenterDataProvider::providePayload();
     }
 
     /**
@@ -28,15 +28,14 @@ class UrlSegmentReplacerTest extends TestCase
 
         $instruction = $this->createStub(SuspendableInterface::class);
 
-        $loader = new ExternalValueLoader($registry, $instruction);
+        $payload = &$requestData->getCrudePayloadReference();
+
+        $loader = ExternalValueLoader::new($registry, $instruction);
 
         $loader->transform($requestData);
-        $loader->transform($requestData);
-        $loader->transform($requestData);
-        $loader->transform($requestData);
-
         $replacer->transform($requestData);
+        $fv = $requestData->getTargetUrl();
 
-        $a = 1;
+        $this->assertEquals('https://api.drom.com/v1.3/11/etc/foo', $fv);
     }
 }

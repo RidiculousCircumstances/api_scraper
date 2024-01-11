@@ -11,6 +11,7 @@ use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoade
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PageIncrementor;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PayloadSigner\PayloadSigner;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\TimeStamper;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\UrlSegmentReplacer\UrlSegmentReplacer;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformPipe;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRecord;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
@@ -46,13 +47,13 @@ final readonly class ScraperClient implements ApiScraperClientInterface
 
             PayloadTransformPipe::payload($requestData)
                 ->with(new TimeStamper())
-                ->with(new ExternalValueLoader($registry, $instruction))
+                ->with(ExternalValueLoader::new($registry, $instruction))
+                ->with(new UrlSegmentReplacer())
                 ->with(new PageIncrementor($this->ctx))
                 ->with(new PayloadSigner($instruction->getSecret()))
                 ->transform();
 
             $payloadBuilder = RequestPayloadBuilderFactory::getBuilder($instruction->getMethod());
-
             $request = RequestAdapter::schema($schema)
                 ->setBody($payloadBuilder->build($requestData->getCrudePayload()))
                 ->setHeaders([
@@ -61,18 +62,14 @@ final readonly class ScraperClient implements ApiScraperClientInterface
 
             try {
                 $response = $this->httpClient->request($request);
-
                 $msg = new ScraperMessage(
                     payload: $response,
                     url: $request->getUrl(),
                 );
-
                 if ($this->successRecognizer->recognize($response)) {
                     $msg->setSuccess();
                 }
-
                 $this->ctx->setMessage($msg);
-
                 $registry->add(new ResponseRecord(
                     requestId: $schema->getFqcn(),
                     content: $response

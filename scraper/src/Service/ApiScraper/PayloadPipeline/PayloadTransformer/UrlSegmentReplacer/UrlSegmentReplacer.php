@@ -4,8 +4,10 @@ namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\UrlSegmentRe
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
-use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\UrlSegmentReplacer\DTO\UrlSegmentData;
 
+/**
+ * Подгружает зачения, полученные ExternalValueLoader, в урл, если требуется
+ */
 class UrlSegmentReplacer implements PayloadTransformerInterface
 {
 
@@ -23,13 +25,11 @@ class UrlSegmentReplacer implements PayloadTransformerInterface
 
         $segments = $this->urlExplorer->getSegments($url);
 
-        foreach ($payload as $key => $value) {
-
-            $match = array_filter($segments, fn(UrlSegmentData $data) => $data->getFullCode() === $key);
-
-            $a = 1;
-
+        foreach ($segments as $segment) {
+            $value = $payload[$segment->getFullCode()];
+            $url = str_replace($segment->getFullCode(), $value, $url);
         }
 
+        $requestData->setTargetUrl($url);
     }
 }

@@ -26,99 +26,83 @@ use Ds\Queue;
 final class ExternalValueLoader implements PayloadTransformerInterface
 {
 
+    private static self|null $instance = null;
     private StringPathExplorer $pathExplorer;
-
-    private \Closure $valueGenerator;
-
     private Queue $externalItemsQueue;
-
     /**
      * @var Queue<RequestParameterData> $parametersQueue
      */
     private Queue $parametersQueue;
+    private $currentExternalItem = null;
 
-    public function __construct(private readonly ResponseRegistry $registry, private readonly SuspendableInterface $instruction)
+    private function __construct(private readonly ResponseRegistry $registry, private readonly SuspendableInterface $instruction)
     {
         $this->pathExplorer = new StringPathExplorer();
         $this->externalItemsQueue = new Queue();
         $this->parametersQueue = new Queue();
     }
 
+    /**
+     * TODO: проверить, сохраняет ли контекст
+     * @param ResponseRegistry $registry
+     * @param SuspendableInterface $instruction
+     * @return self|null
+     */
+    public static function new(ResponseRegistry $registry, SuspendableInterface $instruction): self|null
+    {
+        if (self::$instance === null || !$instruction->isSuspended()) {
+            self::$instance = new self($registry, $instruction);
+        }
+
+        return self::$instance;
+    }
+
+    /**
+     * TODO: в текущей имплементации не будет сохранять контекст между после оттправки сформированного запроса.
+     * Он должен быть синглтоном в период саспенда
+     * @param RequestData $requestData
+     * @return void
+     */
     public function transform(RequestData $requestData): void
     {
+
         if (!$this->externalItemsQueue->isEmpty()) {
-            $valueGenerator = $this->valueGenerator;
-            $valueGenerator();
-            return;
+            $this->currentExternalItem = null;
         }
 
         $parameters = $requestData->getRequestParameters();
         $payload = &$requestData->getCrudePayloadReference();
 
-        /***
-         * {{:url_parameter}}
-         *
-         * чтобы воспользоваться подстановкой в урл, нужно написать в силе api.drom.ru/v1.3/bulls/{{:url_parameter=id}}/user
-         *
-         * в теле запроса нужно создать поле с ключом {{:url_parameter=some_id}}
-         * в значение нужно записать путь ко внешнему запросу,
-         * в ссылке указать схему запроса
-         *
-         * что надо сделать:
-         * 1) разбить урл по /
-         * 2) выбрать все параметры
-         * 3) положить в колбэк формироование урл с подстановкой
-         * 4) извлечь значения, вызвать колбэк
-         *
-         * стоп
-         * если у нас параметры загрузятся обычным флоу,
-         * то работа реплейсера сводится к перебору полезной нагрузки, извлечением значения и удалением параметра
-         * whoa!
-         */
-
         if ($this->parametersQueue->isEmpty()) {
             $this->parametersQueue->push(...$parameters);
         }
 
+        while (!$this->parametersQueue->isEmpty()) {
+            $parameter = $this->parametersQueue->pop();
+            $externalSourceId = $parameter->getExternalSourceId();
 
-        $parameter = $this->parametersQueue->pop();
-        $externalSourceId = $parameter->getExternalSourceId();
-
-        $loopLock = false;
-        while ($externalSourceId === null) {
-            $loopLock = true;
-
-            if ($this->parametersQueue->count() === 0) {
-                return;
+            if ($externalSourceId === null) {
+                continue;
             }
 
-            $parameter = $this->parametersQueue->pop();
+            $externalPath = $parameter->getValue();
+            $externalData = $this->registry->get($externalSourceId);
 
-            $externalSourceId = $parameter->getExternalSourceId();
-        }
+            /**
+             * Если путь не ссылается на множество айтемов - получаем значение обычным образом
+             */
+            if (!$this->pathExplorer->checkMultipleItemsInPath($externalPath)) {
+                $payload[$parameter->getKey()] = m($externalData)(get_by_dot_keys($externalPath))();
+                continue;
+            }
 
-        if ($loopLock) {
-            return;
-        }
+            /**
+             * Иначе блокируем очередь схем на текущей.
+             * Нам нужно выполнить запрос для каждого айтема во внешнем источнике.
+             *
+             * Таким образом, скрапер клиент продолжит выполнять запрос
+             */
 
-        $externalPath = $parameter->getValue();
-        $externalData = $this->registry->get($externalSourceId);
-
-        /**
-         * Если путь не ссылается на множество айтемов - получаем значение обычным образом
-         */
-        if (!$this->pathExplorer->checkMultipleItemsInPath($externalPath)) {
-            $payload[$parameter->getKey()] = m($externalData)(get_by_dot_keys($externalPath))();
-            return;
-        }
-
-        /**
-         * Иначе блокируем очередь схем на текущей.
-         * Нам нужно выполнить запрос для каждого айтема во внешнем источнике.
-         *
-         * Таким образом, скрапер клиент продолжит выполнять запрос
-         */
-        $valueGenerator = function () use ($externalPath, $externalData, &$payload, $parameter) {
             if (!$this->instruction->isSuspended()) {
                 $this->instruction->suspended(true);
             }
@@ -130,10 +114,8 @@ final class ExternalValueLoader implements PayloadTransformerInterface
             if ($this->externalItemsQueue->isEmpty()) {
                 $this->instruction->suspended(false);
             }
-        };
 
-        $this->valueGenerator = $valueGenerator;
-        $valueGenerator();
+        }
 
     }
 
@@ -144,8 +126,12 @@ final class ExternalValueLoader implements PayloadTransformerInterface
         if ($this->externalItemsQueue->isEmpty()) {
             $this->externalItemsQueue->push(...$items);
         }
-        $item = $this->externalItemsQueue->pop();
-        return $this->pathExplorer->extractValue($path, $item);
+
+        if (!$this->currentExternalItem) {
+            $this->currentExternalItem = $this->externalItemsQueue->pop();
+        }
+
+        return $this->pathExplorer->extractValue($path, $this->currentExternalItem);
 
     }
 

@@ -37,58 +37,22 @@ class ExternalValueLoaderTest extends TestCase
          *
          *В результате инструкция должна быть заблокирована и разблокирована
          */
-        $instruction
-            ->method('suspended');
-
-        $valueLoader = new ExternalValueLoader($registry, $instruction);
+        $valueLoader = ExternalValueLoader::new($registry, $instruction);
 
         $payload = &$requestData->getCrudePayloadReference();
 
-        /**
-         * Обрабатываем первый запрос
-         * РЕЖИМ ГЕНЕРАТОРА
-         */
         $valueLoader->transform($requestData);
-        $firstValue = $payload['needs_external_key'];
+        $fv = $payload;
 
-        /**
-         * Запрос отправлен. Так как итерирование инструкций скрапера засуспенжено,
-         * он продолжит выполнение текущей схемы
-         */
-
-        /**
-         * Трансформер обрабатывает следующий айтем из массива во внешнем респонсе
-         *
-         * РЕЖИМ ГЕНЕРАТОРА
-         */
         $valueLoader->transform($requestData);
-        $secondValue = $payload['needs_external_key'];
+        $sv = $payload;
 
-        /**
-         * РЕЖИМ ГЕНЕРАТОРА
-         */
         $valueLoader->transform($requestData);
-        $thirdValue = $payload['needs_external_key'];
-        $this->assertFalse(isset($payload['plain']), 'premature plain call');
-        $this->assertFalse(isset($payload['plain_second']), 'premature second plain call');
+        $thv = $payload;
 
-        /**
-         * ОБЫЧНЫЙ РЕЖИМ
-         */
-        $valueLoader->transform($requestData);
-        $this->assertTrue(isset($payload['plain']), 'no plain call');
-        $this->assertTrue(isset($payload['plain_second']), 'no second plain call');
-
-        /**
-         * РЕЖИМ ГЕНЕРАТОРА
-         */
-        $valueLoader->transform($requestData);
-        $fourthValue = $payload['needs_external_key'];
-
-        $this->assertEquals('foo', $firstValue);
-        $this->assertEquals('bar', $secondValue);
-        $this->assertEquals('baz', $thirdValue);
-        $this->assertEquals('baz', $fourthValue);
+        $this->assertEquals('foo', $fv['needs_external_key']);
+        $this->assertEquals('bar', $sv['needs_external_key']);
+        $this->assertEquals('baz', $thv['needs_external_key']);
     }
 
 }

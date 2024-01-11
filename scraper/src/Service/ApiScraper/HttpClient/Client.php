@@ -25,9 +25,9 @@ readonly class Client implements ClientInterface
         $payload = $source->getBody();
         $url = $source->getUrl();
         $method = $source->getMethod();
-        $delay = $source->getDelay();
+        $headers = $source->getHeaders();
 
-        usleep($delay);
+        $payload = array_merge($payload, compact('headers'));
 
         $response = $this->client->request($method, $url, $payload);
         return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);

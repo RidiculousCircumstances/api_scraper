@@ -13,12 +13,12 @@ final class RequestAdapter implements DataSourceInterface
         private string|null $method = null,
         private mixed       $body = null,
         private array|null  $proxy = null,
-        private int|null    $delay = null
+        private array|null  $headers = null
     )
     {
     }
 
-    public static function from(ParsingSchemaData $data): self
+    public static function schema(ParsingSchemaData $data): self
     {
 
         $requestData = $data->getRequestData();
@@ -72,15 +72,15 @@ final class RequestAdapter implements DataSourceInterface
         $this->proxy = $proxy;
     }
 
-    public function setDelay(int|null $delay): self
+
+    public function setHeaders(array|null $headers): self
     {
-        $this->delay = $delay;
+        $this->headers = $headers;
         return $this;
     }
 
-
-    public function getDelay(): int
+    public function getHeaders(): array
     {
-        return $this->delay;
+        return $this->headers;
     }
 }

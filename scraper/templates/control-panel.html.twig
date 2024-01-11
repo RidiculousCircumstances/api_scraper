@@ -12,45 +12,35 @@
             {{ form_errors(form) }}
 
             <div class="form-group">
-                <div class="form-widget">
-                    {{ form_row(form.schema) }}
-                </div>
+                {{ form_row(form.schema, { 'attr': {'class': 'form-control'} } ) }}
             </div>
 
             <div class="form-group">
-                <div class="form-widget">
-                    {{ form_row(form.method) }}
-                </div>
+                {{ form_row(form.method, { 'attr': {'class': 'form-control'} }) }}
             </div>
 
             <div class="form-group">
-                <div class="form-widget">
-                    {{ form_row(form.secret) }}
-                </div>
+                {{ form_row(form.secret, { 'attr': {'class': 'form-control'} }) }}
             </div>
 
             <div class="form-group">
-                <div class="form-widget">
-                    {{ form_row(form.format) }}
-                </div>
+                {{ form_row(form.auth, { 'attr': {'class': 'form-control'} }) }}
             </div>
 
             <div class="form-group">
-                <div class="form-widget">
-                    {{ form_row(form.path) }}
-                </div>
+                {{ form_row(form.format, { 'attr': {'class': 'form-control'} }) }}
             </div>
 
             <div class="form-group">
-                <div class="form-widget">
-                    {{ form_row(form.delay) }}
-                </div>
+                {{ form_row(form.path, { 'attr': {'class': 'form-control'} }) }}
             </div>
 
             <div class="form-group">
-                <div class="form-widget">
-                    {{ form_row(form.useProxy) }}
-                </div>
+                {{ form_row(form.delay, { 'attr': {'class': 'form-control'} }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_row(form.useProxy, { 'attr': {'class': 'form-checkbox'} }) }}
             </div>
         </div>
     </div>

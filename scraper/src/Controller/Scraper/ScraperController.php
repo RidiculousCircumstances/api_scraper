@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Parsing;
+namespace App\Controller\Scraper;
 
 use App\Message\Parsing\StartParsingCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ParsingController extends AbstractController
+class ScraperController extends AbstractController
 {
 
     #[Route('/parse', 'admin_start_parsing')]

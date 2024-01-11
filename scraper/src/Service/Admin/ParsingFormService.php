@@ -2,7 +2,7 @@
 
 namespace App\Service\Admin;
 
-use App\Form\Parsing\StartParsingType;
+use App\Form\Scraper\StartScrapingType;
 use App\Message\Parsing\Enum\HttpMethodsEnum;
 use App\Repository\DataSchema\DataSchemaRepository;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -19,7 +19,7 @@ readonly class ParsingFormService
     {
         $schemas = $this->dataSchemaRepository->findAll();
 
-        return $this->builder->createNamedBuilder('', StartParsingType::class, [
+        return $this->builder->createNamedBuilder('', StartScrapingType::class, [
             'schemaEntities' => $schemas,
             'availableFormats' => ['csv'],
             'availableMethods' => [
@@ -27,6 +27,7 @@ readonly class ParsingFormService
                 HttpMethodsEnum::POST->value
             ],
             'secret' => '',
+            'auth' => '',
             'path' => '/home',
             'useProxy' => false,
             'delay' => 500

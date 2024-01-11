@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Tests\Service\ApiScraper\PayloadPipe\ExternalValueLoader;
+namespace App\Tests\Service\ApiScraper\PayloadPipe;
 
-use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\ExternalValueLoader\ExternalValueLoader;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\Interface\SuspendableInterface;
-use App\Service\ApiScraper\ResponseRegistry\ResponseRecord;
+use App\Service\ApiScraper\Instruction\DTO\RequestData;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoader\ExternalValueLoader;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\Interface\SuspendableInterface;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
 use PHPUnit\Framework\TestCase;
 
@@ -14,49 +13,7 @@ class ExternalValueLoaderTest extends TestCase
     public static function responseProvider(): array
     {
 
-        $responseRecord = new ResponseRecord('request_1', [
-            'data' => [
-                [
-                    'name' => 'foo',
-                    'whatever' => 11
-                ],
-                [
-                    'name' => 'bar',
-                    'whatever' => [1, 4, 10]
-                ],
-                [
-                    'name' => 'baz',
-                ]
-            ]
-        ]);
-
-        $requestParameters = [
-            new RequestParameterData(
-                key: 'needs_external_key',
-                value: 'data.*.name',
-                externalSourceId: 'request_1'
-            ),
-            new RequestParameterData(
-                key: 'plain',
-                value: 'inglip',
-            ),
-            new RequestParameterData(
-                key: 'plain_second',
-                value: 'inglip',
-            ),
-            new RequestParameterData(
-                key: 'needs_external_key',
-                value: 'data.*.name',
-                externalSourceId: 'request_1'
-            ),
-        ];
-
-        $registry = new ResponseRegistry();
-        $registry->add($responseRecord);
-
-        return [
-            [$registry, $requestParameters]
-        ];
+        return PayloadDataProvider::providePayload();
     }
 
 
@@ -65,10 +22,10 @@ class ExternalValueLoaderTest extends TestCase
      * @dataProvider responseProvider
      *
      * @param ResponseRegistry $registry
-     * @param array $requestParameters
+     * @param RequestData $requestData
      * @return void
      */
-    public function testValueLoading(ResponseRegistry $registry, array $requestParameters): void
+    public function testValueLoading(ResponseRegistry $registry, RequestData $requestData): void
     {
 
         $instruction = $this->createMock(SuspendableInterface::class);
@@ -85,13 +42,13 @@ class ExternalValueLoaderTest extends TestCase
 
         $valueLoader = new ExternalValueLoader($registry, $instruction);
 
-        $payload = [];
+        $payload = &$requestData->getCrudePayloadReference();
 
         /**
          * Обрабатываем первый запрос
          * РЕЖИМ ГЕНЕРАТОРА
          */
-        $valueLoader->transform($requestParameters, $payload);
+        $valueLoader->transform($requestData);
         $firstValue = $payload['needs_external_key'];
 
         /**
@@ -104,13 +61,13 @@ class ExternalValueLoaderTest extends TestCase
          *
          * РЕЖИМ ГЕНЕРАТОРА
          */
-        $valueLoader->transform($requestParameters, $payload);
+        $valueLoader->transform($requestData);
         $secondValue = $payload['needs_external_key'];
 
         /**
          * РЕЖИМ ГЕНЕРАТОРА
          */
-        $valueLoader->transform($requestParameters, $payload);
+        $valueLoader->transform($requestData);
         $thirdValue = $payload['needs_external_key'];
         $this->assertFalse(isset($payload['plain']), 'premature plain call');
         $this->assertFalse(isset($payload['plain_second']), 'premature second plain call');
@@ -118,20 +75,20 @@ class ExternalValueLoaderTest extends TestCase
         /**
          * ОБЫЧНЫЙ РЕЖИМ
          */
-        $valueLoader->transform($requestParameters, $payload);
+        $valueLoader->transform($requestData);
         $this->assertTrue(isset($payload['plain']), 'no plain call');
         $this->assertTrue(isset($payload['plain_second']), 'no second plain call');
 
         /**
          * РЕЖИМ ГЕНЕРАТОРА
          */
-        $valueLoader->transform($requestParameters, $payload);
+        $valueLoader->transform($requestData);
         $fourthValue = $payload['needs_external_key'];
 
         $this->assertEquals('foo', $firstValue);
         $this->assertEquals('bar', $secondValue);
         $this->assertEquals('baz', $thirdValue);
-        $this->assertEquals('foo', $fourthValue);
+        $this->assertEquals('baz', $fourthValue);
     }
 
 }

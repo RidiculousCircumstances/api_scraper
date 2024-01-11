@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Service\ApiScraper\PayloadPipe;
+namespace App\Service\ApiScraper\PayloadPipeline;
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
-use App\Service\ApiScraper\PayloadPipe\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
 use Ds\Queue;
 
 final class PayloadTransformPipe
@@ -30,11 +30,11 @@ final class PayloadTransformPipe
         return $this;
     }
 
-    public function exec(): array
+    public function transform(): RequestData
     {
+        $requestData = $this->requestData;
+        $parameters = $requestData->getRequestParameters();
         $payload = [];
-        $parameters = $this->requestData->getRequestParameters();
-
         foreach ($parameters as $parameter) {
             if (preg_match('/\[]$/', $parameter->getKey())) {
                 $keyMod = str_replace('[]', '', $parameter->getKey());
@@ -43,12 +43,13 @@ final class PayloadTransformPipe
             }
             $payload[$parameter->getKey()] = $parameter->getValue();
         }
+        $requestData->setCrudePayload($payload);
 
         while (!$this->transformerQueue->isEmpty()) {
             $transformer = $this->transformerQueue->pop();
-            $transformer->transform($parameters, $payload);
+            $transformer->transform($requestData);
         }
 
-        return $payload;
+        return $requestData;
     }
 }

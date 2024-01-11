@@ -12,5 +12,5 @@ interface DataSourceInterface
 
     public function getProxy(): array;
 
-    public function getDelay(): int;
+    public function getHeaders(): array;
 }

@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Service\ApiScraper\PayloadPipe\PayloadTransformer\ExternalValueLoader;
+namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoader;
 
 
-use App\Service\ApiScraper\PayloadPipe\Interface\PayloadTransformerInterface;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\Interface\SuspendableInterface;
+use App\Service\ApiScraper\Instruction\DTO\RequestData;
+use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\Interface\SuspendableInterface;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
-use App\Service\ApiScraper\StringPathTraverser\StringPathTraverser;
 use Ds\Queue;
 
 /**
@@ -22,36 +23,63 @@ use Ds\Queue;
  * То есть, в трансформере имитируется генератор, который итерируется по массиву айтемов,
  * если такой есть. Если нет - происходит обычный вызов
  */
-class ExternalValueLoader implements PayloadTransformerInterface
+final class ExternalValueLoader implements PayloadTransformerInterface
 {
 
-    private StringPathTraverser $traverser;
+    private StringPathExplorer $pathExplorer;
 
-    private $valueGenerator;
+    private \Closure $valueGenerator;
 
     private Queue $externalItemsQueue;
 
+    /**
+     * @var Queue<RequestParameterData> $parametersQueue
+     */
     private Queue $parametersQueue;
 
     public function __construct(private readonly ResponseRegistry $registry, private readonly SuspendableInterface $instruction)
     {
-        $this->traverser = new StringPathTraverser();
+        $this->pathExplorer = new StringPathExplorer();
         $this->externalItemsQueue = new Queue();
         $this->parametersQueue = new Queue();
     }
 
-    public function transform(array $parameters, array &$payload): void
+    public function transform(RequestData $requestData): void
     {
-
-        if(!$this->externalItemsQueue->isEmpty()) {
+        if (!$this->externalItemsQueue->isEmpty()) {
             $valueGenerator = $this->valueGenerator;
             $valueGenerator();
             return;
         }
 
-        if($this->parametersQueue->isEmpty()) {
+        $parameters = $requestData->getRequestParameters();
+        $payload = &$requestData->getCrudePayloadReference();
+
+        /***
+         * {{:url_parameter}}
+         *
+         * чтобы воспользоваться подстановкой в урл, нужно написать в силе api.drom.ru/v1.3/bulls/{{:url_parameter=id}}/user
+         *
+         * в теле запроса нужно создать поле с ключом {{:url_parameter=some_id}}
+         * в значение нужно записать путь ко внешнему запросу,
+         * в ссылке указать схему запроса
+         *
+         * что надо сделать:
+         * 1) разбить урл по /
+         * 2) выбрать все параметры
+         * 3) положить в колбэк формироование урл с подстановкой
+         * 4) извлечь значения, вызвать колбэк
+         *
+         * стоп
+         * если у нас параметры загрузятся обычным флоу,
+         * то работа реплейсера сводится к перебору полезной нагрузки, извлечением значения и удалением параметра
+         * whoa!
+         */
+
+        if ($this->parametersQueue->isEmpty()) {
             $this->parametersQueue->push(...$parameters);
         }
+
 
         $parameter = $this->parametersQueue->pop();
         $externalSourceId = $parameter->getExternalSourceId();
@@ -59,9 +87,8 @@ class ExternalValueLoader implements PayloadTransformerInterface
         $loopLock = false;
         while ($externalSourceId === null) {
             $loopLock = true;
-            $payload[$parameter->getKey()] = 1;
 
-            if($this->parametersQueue->count() === 0) {
+            if ($this->parametersQueue->count() === 0) {
                 return;
             }
 
@@ -70,7 +97,7 @@ class ExternalValueLoader implements PayloadTransformerInterface
             $externalSourceId = $parameter->getExternalSourceId();
         }
 
-        if($loopLock) {
+        if ($loopLock) {
             return;
         }
 
@@ -80,7 +107,7 @@ class ExternalValueLoader implements PayloadTransformerInterface
         /**
          * Если путь не ссылается на множество айтемов - получаем значение обычным образом
          */
-        if (!$this->traverser->checkMultipleItemsInPath($externalPath)) {
+        if (!$this->pathExplorer->checkMultipleItemsInPath($externalPath)) {
             $payload[$parameter->getKey()] = m($externalData)(get_by_dot_keys($externalPath))();
             return;
         }
@@ -91,7 +118,7 @@ class ExternalValueLoader implements PayloadTransformerInterface
          *
          * Таким образом, скрапер клиент продолжит выполнять запрос
          */
-        $valueGenerator = function() use ($externalPath, $externalData, &$payload, $parameter) {
+        $valueGenerator = function () use ($externalPath, $externalData, &$payload, $parameter) {
             if (!$this->instruction->isSuspended()) {
                 $this->instruction->suspended(true);
             }
@@ -113,12 +140,12 @@ class ExternalValueLoader implements PayloadTransformerInterface
     private function handleItems(string $path, array $content): mixed
     {
 
-        $items = $this->traverser->extractItems($path, $content);
+        $items = $this->pathExplorer->extractItems($path, $content);
         if ($this->externalItemsQueue->isEmpty()) {
             $this->externalItemsQueue->push(...$items);
         }
         $item = $this->externalItemsQueue->pop();
-        return $this->traverser->extractValue($path, $item);
+        return $this->pathExplorer->extractValue($path, $item);
 
     }
 

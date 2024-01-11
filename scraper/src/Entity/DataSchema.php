@@ -39,6 +39,9 @@ class DataSchema
     #[ORM\JoinColumn(nullable: true)]
     private GroupTag|null $groupTag = null;
 
+    #[ORM\Column(nullable: true)]
+    private bool|null $needsAuth = null;
+
     public function __construct()
     {
         $this->requestParameters = new ArrayCollection();
@@ -159,14 +162,26 @@ class DataSchema
         return $this;
     }
 
-    public function getGroupTag(): ?GroupTag
+    public function getGroupTag(): GroupTag|null
     {
         return $this->groupTag;
     }
 
-    public function setGroupTag(?GroupTag $groupTag): static
+    public function setGroupTag(GroupTag|null $groupTag): static
     {
         $this->groupTag = $groupTag;
+
+        return $this;
+    }
+
+    public function isNeedsAuth(): bool|null
+    {
+        return $this->needsAuth;
+    }
+
+    public function setNeedsAuth(bool|null $needsAuth): static
+    {
+        $this->needsAuth = $needsAuth;
 
         return $this;
     }

@@ -33,6 +33,9 @@ readonly class StartParsingCommand
         #[Type('integer')]
         private int|null    $delay,
 
+        #[Type('string')]
+        private string|null $auth,
+
     )
     {
     }
@@ -70,6 +73,11 @@ readonly class StartParsingCommand
     public function getDelay(): int|null
     {
         return $this->delay;
+    }
+
+    public function getAuthToken(): string
+    {
+        return $this->auth;
     }
 
 }

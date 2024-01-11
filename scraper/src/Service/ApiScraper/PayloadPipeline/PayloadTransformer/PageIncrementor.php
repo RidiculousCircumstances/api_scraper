@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Service\ApiScraper\PayloadPipe\PayloadTransformer;
+namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer;
 
 use App\Service\ApiScraper\Context\ScraperContext;
 use App\Service\ApiScraper\Context\ScraperStateEnum;
-use App\Service\ApiScraper\PayloadPipe\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\Instruction\DTO\RequestData;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
 
 /**
  * Увеличивает значение поля с каждым вызовом. Используется для пагинации
@@ -18,8 +19,12 @@ class PageIncrementor implements PayloadTransformerInterface
     {
     }
 
-    public function transform(array $parameters, array &$payload): void
+    public function transform(RequestData $requestData): void
     {
+
+        $parameters = $requestData->getRequestParameters();
+        $payload = &$requestData->getCrudePayloadReference();
+
         foreach ($parameters as $parameter) {
             if (!preg_match($this->pattern, $parameter->getValue())) {
                 continue;

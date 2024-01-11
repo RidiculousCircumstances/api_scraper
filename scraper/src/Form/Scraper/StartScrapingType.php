@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Parsing;
+namespace App\Form\Scraper;
 
 use App\Entity\DataSchema;
 use Symfony\Component\Form\AbstractType;
@@ -13,7 +13,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class StartParsingType extends AbstractType
+class StartScrapingType extends AbstractType
 {
     public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
     {
@@ -78,6 +78,11 @@ class StartParsingType extends AbstractType
                 'required' => false,
                 'label' => 'Секрет для подписи запроса: ',
                 'attr' => ['placeholder' => 'Укажите секрет...']
+            ])
+            ->add('auth', TextType::class, [
+                'required' => false,
+                'label' => 'Токен авторизации: ',
+                'attr' => ['placeholder' => 'X-auth-token...']
             ])
             ->add('delay', IntegerType::class, [
                 'required' => false,

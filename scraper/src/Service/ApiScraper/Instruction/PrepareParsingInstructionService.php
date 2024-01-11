@@ -49,7 +49,8 @@ final readonly class PrepareParsingInstructionService
         $instruction = new ScraperInstructionData(
             method: HttpMethodsEnum::from($command->getMethod()),
             secret: $command->getSecret(),
-            delay: $command->getDelay()
+            delay: $command->getDelay(),
+            authToken: $command->getAuthToken()
         );
 
         $resolve = static function (DataSchema $schema, ScraperInstructionData $instruction) use (&$resolve): ParsingSchemaData {

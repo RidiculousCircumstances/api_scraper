@@ -7,11 +7,11 @@ use App\Service\ApiScraper\HttpClient\Interface\ClientInterface;
 use App\Service\ApiScraper\HttpClient\RequestAdapter;
 use App\Service\ApiScraper\HttpClient\RequestPayloadBuilder\RequestPayloadBuilderFactory;
 use App\Service\ApiScraper\Instruction\DTO\ScraperInstructionData;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\ExternalValueLoader\ExternalValueLoader;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\PageIncrementor;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\PayloadSigner\PayloadSigner;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\TimeStamper;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformPipe;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoader\ExternalValueLoader;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PageIncrementor;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PayloadSigner\PayloadSigner;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\TimeStamper;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformPipe;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRecord;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
 use App\Service\ApiScraper\ScraperClient\Interface\ApiScraperClientInterface;
@@ -38,20 +38,26 @@ final readonly class ScraperClient implements ApiScraperClientInterface
         $instruction->rewind();
 
         while (!$instruction->executed()) {
+
+            usleep($instruction->getDelay());
+
             $schema = $instruction->extract();
             $requestData = $schema->getRequestData();
 
-            $payload = PayloadTransformPipe::payload($requestData)
+            PayloadTransformPipe::payload($requestData)
                 ->with(new TimeStamper())
                 ->with(new ExternalValueLoader($registry, $instruction))
                 ->with(new PageIncrementor($this->ctx))
                 ->with(new PayloadSigner($instruction->getSecret()))
-                ->exec();
+                ->transform();
 
             $payloadBuilder = RequestPayloadBuilderFactory::getBuilder($instruction->getMethod());
-            $request = RequestAdapter::from($schema)
-                ->setBody($payloadBuilder->build($payload))
-                ->setDelay($instruction->getDelay());
+
+            $request = RequestAdapter::schema($schema)
+                ->setBody($payloadBuilder->build($requestData->getCrudePayload()))
+                ->setHeaders([
+                    'X-AUTH_TOKEN' => $instruction->getAuthToken()
+                ]);
 
             try {
                 $response = $this->httpClient->request($request);

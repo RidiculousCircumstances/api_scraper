@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\ApiScraper\PayloadPipe\PayloadTransformer\PayloadSigner;
+namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PayloadSigner;
 
 use Ds\Map;
 

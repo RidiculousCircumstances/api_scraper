@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\ApiScraper\PayloadPipe\PayloadTransformer\Interface;
+namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\Interface;
 
 interface SuspendableInterface
 {

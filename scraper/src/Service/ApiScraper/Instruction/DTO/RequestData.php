@@ -4,17 +4,19 @@ namespace App\Service\ApiScraper\Instruction\DTO;
 
 use App\Message\Parsing\Enum\HttpMethodsEnum;
 
-readonly class RequestData
+class RequestData
 {
     public function __construct(
-        private string          $targetUrl,
+        private string                   $targetUrl,
 
-        private HttpMethodsEnum $httpMethod,
+        private readonly HttpMethodsEnum $httpMethod,
 
         /**
          * @var array<RequestParameterData> $requestParameters
          */
-        private array           $requestParameters,
+        private readonly array           $requestParameters,
+
+        private array                    $crudePayload = [],
     )
     {
     }
@@ -32,6 +34,28 @@ readonly class RequestData
     public function getRequestParameters(): array
     {
         return $this->requestParameters;
+    }
+
+    public function &getCrudePayloadReference(): array
+    {
+        return $this->crudePayload;
+    }
+
+    public function getCrudePayload(): array
+    {
+        return $this->crudePayload;
+    }
+
+    public function setTargetUrl(string $targetUrl): self
+    {
+        $this->targetUrl = $targetUrl;
+        return $this;
+    }
+
+    public function setCrudePayload(array $crudePayload): self
+    {
+        $this->crudePayload = $crudePayload;
+        return $this;
     }
 
 }

@@ -3,7 +3,7 @@
 namespace App\Service\ApiScraper\Instruction\DTO;
 
 use App\Message\Parsing\Enum\HttpMethodsEnum;
-use App\Service\ApiScraper\PayloadPipe\PayloadTransformer\Interface\SuspendableInterface;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\Interface\SuspendableInterface;
 use SplDoublyLinkedList;
 
 /**
@@ -23,6 +23,7 @@ class ScraperInstructionData implements SuspendableInterface
         private bool|null                $suspended = null,
         private string|null              $secret = null,
         private readonly int             $delay = 100,
+        private string|null              $authToken = null
     )
     {
         $this->secret ??= '';
@@ -116,5 +117,9 @@ class ScraperInstructionData implements SuspendableInterface
         $this->suspended = $suspended;
     }
 
+    public function getAuthToken(): string|null
+    {
+        return $this->authToken;
+    }
 
 }

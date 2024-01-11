@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Service\ApiScraper\StringPathTraverser;
+namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoader;
 
-final class StringPathTraverser
+final class StringPathExplorer
 {
 
     private const MULTIPLE_ITEMS_PATH_PATTERN = '/\S+\.\*\.\S+/';

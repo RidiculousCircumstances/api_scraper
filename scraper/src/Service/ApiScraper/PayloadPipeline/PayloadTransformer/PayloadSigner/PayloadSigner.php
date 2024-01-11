@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Service\ApiScraper\PayloadPipe\PayloadTransformer\PayloadSigner;
+namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PayloadSigner;
 
 
-use App\Service\ApiScraper\PayloadPipe\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\Instruction\DTO\RequestData;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
 
 /**
  * Должен добавляться последним, после всех трансформаций
@@ -18,8 +19,11 @@ class PayloadSigner implements PayloadTransformerInterface
     {
     }
 
-    public function transform(array $parameters, array &$payload): void
+    public function transform(RequestData $requestData): void
     {
+        $parameters = $requestData->getRequestParameters();
+        $payload = &$requestData->getCrudePayloadReference();
+
         foreach ($parameters as $parameter) {
             if (!preg_match($this->pattern, $parameter->getValue())) {
                 continue;

@@ -30,7 +30,6 @@ class ExternalValueLoaderTest extends TestCase
             ]
         ]);
 
-
         $requestParameters = [
             new RequestParameterData(
                 key: 'needs_external_key',
@@ -44,6 +43,11 @@ class ExternalValueLoaderTest extends TestCase
             new RequestParameterData(
                 key: 'plain_second',
                 value: 'inglip',
+            ),
+            new RequestParameterData(
+                key: 'needs_external_key',
+                value: 'data.*.name',
+                externalSourceId: 'request_1'
             ),
         ];
 
@@ -108,19 +112,26 @@ class ExternalValueLoaderTest extends TestCase
          */
         $valueLoader->transform($requestParameters, $payload);
         $thirdValue = $payload['needs_external_key'];
-        $this->assertFalse(isset($payload['plain']));
-        $this->assertFalse(isset($payload['plain_second']));
+        $this->assertFalse(isset($payload['plain']), 'premature plain call');
+        $this->assertFalse(isset($payload['plain_second']), 'premature second plain call');
 
         /**
          * ОБЫЧНЫЙ РЕЖИМ
          */
         $valueLoader->transform($requestParameters, $payload);
-        $this->assertTrue(isset($payload['plain']));
-        $this->assertTrue(isset($payload['plain_second']));
+        $this->assertTrue(isset($payload['plain']), 'no plain call');
+        $this->assertTrue(isset($payload['plain_second']), 'no second plain call');
+
+        /**
+         * РЕЖИМ ГЕНЕРАТОРА
+         */
+        $valueLoader->transform($requestParameters, $payload);
+        $fourthValue = $payload['needs_external_key'];
 
         $this->assertEquals('foo', $firstValue);
         $this->assertEquals('bar', $secondValue);
         $this->assertEquals('baz', $thirdValue);
+        $this->assertEquals('foo', $fourthValue);
     }
 
 }

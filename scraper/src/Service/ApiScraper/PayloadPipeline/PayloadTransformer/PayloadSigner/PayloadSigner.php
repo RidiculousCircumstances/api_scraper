@@ -22,15 +22,15 @@ class PayloadSigner implements PayloadTransformerInterface
     public function transform(RequestData $requestData): void
     {
         $parameters = $requestData->getRequestParameters();
-        $payload = &$requestData->getCrudePayloadReference();
+        $payloadRef = &$requestData->getCrudePayloadReference();
 
         foreach ($parameters as $parameter) {
             if (!preg_match($this->pattern, $parameter->getValue())) {
                 continue;
             }
-            unset($payload[array_search($parameter->getValue(), $payload, true)]);
-            $sign = $this->generateSecret($payload);
-            $payload[$parameter->getKey()] = $sign;
+            unset($payloadRef[array_search($parameter->getValue(), $payloadRef, true)]);
+            $sign = $this->generateSecret($payloadRef);
+            $payloadRef[$parameter->getKey()] = $sign;
         }
     }
 

@@ -23,7 +23,7 @@ class PageIncrementor implements PayloadTransformerInterface
     {
 
         $parameters = $requestData->getRequestParameters();
-        $payload = &$requestData->getCrudePayloadReference();
+        $payloadRef = &$requestData->getCrudePayloadReference();
 
         foreach ($parameters as $parameter) {
             if (!preg_match($this->pattern, $parameter->getValue())) {
@@ -36,7 +36,7 @@ class PageIncrementor implements PayloadTransformerInterface
                 self::$currentValue++;
             }
 
-            $payload[$parameter->getKey()] = self::$currentValue;
+            $payloadRef[$parameter->getKey()] = self::$currentValue;
             break;
         }
 

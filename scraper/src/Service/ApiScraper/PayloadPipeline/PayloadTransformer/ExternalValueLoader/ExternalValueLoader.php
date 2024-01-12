@@ -71,7 +71,7 @@ final class ExternalValueLoader implements PayloadTransformerInterface
         }
 
         $parameters = $requestData->getRequestParameters();
-        $payload = &$requestData->getCrudePayloadReference();
+        $payloadRef = &$requestData->getCrudePayloadReference();
 
         if ($this->parametersQueue->isEmpty()) {
             $this->parametersQueue->push(...$parameters);
@@ -92,7 +92,7 @@ final class ExternalValueLoader implements PayloadTransformerInterface
              * Если путь не ссылается на множество айтемов - получаем значение обычным образом
              */
             if (!$this->pathExplorer->checkMultipleItemsInPath($externalPath)) {
-                $payload[$parameter->getKey()] = m($externalData)(get_by_dot_keys($externalPath))();
+                $payloadRef[$parameter->getKey()] = m($externalData)(get_by_dot_keys($externalPath))();
                 continue;
             }
 
@@ -109,7 +109,7 @@ final class ExternalValueLoader implements PayloadTransformerInterface
 
             $value = $this->handleItems($externalPath, $externalData->getContent());
 
-            $payload[$parameter->getKey()] = $value;
+            $payloadRef[$parameter->getKey()] = $value;
 
             if ($this->externalItemsQueue->isEmpty()) {
                 $this->instruction->suspended(false);

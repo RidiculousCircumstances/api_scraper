@@ -13,13 +13,13 @@ class TimeStamper implements PayloadTransformerInterface
     public function transform(RequestData $requestData): void
     {
         $parameters = $requestData->getRequestParameters();
-        $payload = &$requestData->getCrudePayloadReference();
+        $payloadRef = &$requestData->getCrudePayloadReference();
         foreach ($parameters as $parameter) {
             if (!preg_match($this->pattern, $parameter->getValue())) {
                 continue;
             }
 
-            $payload[$parameter->getKey()] = time();
+            $payloadRef[$parameter->getKey()] = time();
         }
     }
 }

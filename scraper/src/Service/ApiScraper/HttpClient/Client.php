@@ -26,8 +26,11 @@ readonly class Client implements ClientInterface
         $url = $source->getUrl();
         $method = $source->getMethod();
         $headers = $source->getHeaders();
+        $proxy = [
+            'https' => 'http://50.174.7.153:80'
+        ];
 
-        $payload = array_merge($payload, compact('headers'));
+        $payload = array_merge($payload, compact('headers'), $proxy);
 
         $response = $this->client->request($method, $url, $payload);
         return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);

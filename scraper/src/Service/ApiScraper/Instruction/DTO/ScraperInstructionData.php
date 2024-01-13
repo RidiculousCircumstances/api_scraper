@@ -20,15 +20,13 @@ class ScraperInstructionData implements SuspendableInterface
 
     private bool $firstTime = true;
 
+    private bool $suspended;
+
     public function __construct(
-        private readonly HttpMethodsEnum $method,
-        private bool|null                $suspended = null,
-        private string|null              $secret = null,
-        private readonly int             $delay = 100,
-        private string|null              $authToken = null
+        private readonly RequestConfigData $requestConfig
     )
     {
-        $this->secret ??= '';
+        $this->suspended = false;
         $this->schemasList = new SplDoublyLinkedList();
     }
 
@@ -67,19 +65,13 @@ class ScraperInstructionData implements SuspendableInterface
         }
 
         $current = $list->current();
-//
-//        if ($this->isSuspended() && !$this->wasSuspended) {
-//            $this->wasSuspended = true;
-//            $list->prev();
-//            $current = $list->current();
-//        }
 
         if (!$list->valid()) {
             $list->rewind();
             $this->loopPassed = true;
         }
 
-        return $current;
+        return unserialize(serialize($current), [ParsingSchemaData::class]);
     }
 
     /**
@@ -93,7 +85,7 @@ class ScraperInstructionData implements SuspendableInterface
 
     public function getSecret(): string|null
     {
-        return $this->secret;
+        return $this->requestConfig->getSecret();
     }
 
     /**
@@ -107,7 +99,7 @@ class ScraperInstructionData implements SuspendableInterface
 
     public function getMethod(): HttpMethodsEnum
     {
-        return $this->method;
+        return $this->requestConfig->getMethod();
     }
 
     /**
@@ -116,7 +108,7 @@ class ScraperInstructionData implements SuspendableInterface
      */
     public function getDelay(): int
     {
-        return $this->delay;
+        return $this->requestConfig->getDelay();
     }
 
     /**
@@ -131,7 +123,12 @@ class ScraperInstructionData implements SuspendableInterface
 
     public function getAuthToken(): string|null
     {
-        return $this->authToken;
+        return $this->requestConfig->getAuthToken();
+    }
+
+    public function getRequestConfig(): RequestConfigData
+    {
+        return $this->requestConfig;
     }
 
 }

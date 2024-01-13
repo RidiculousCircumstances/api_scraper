@@ -3,7 +3,6 @@
 namespace App\Service\ApiScraper\HttpClient;
 
 use App\Service\ApiScraper\HttpClient\Interface\DataSourceInterface;
-use App\Service\ApiScraper\Instruction\DTO\ParsingSchemaData;
 
 final class RequestAdapter implements DataSourceInterface
 {
@@ -18,16 +17,6 @@ final class RequestAdapter implements DataSourceInterface
     {
     }
 
-    public static function schema(ParsingSchemaData $data): self
-    {
-
-        $requestData = $data->getRequestData();
-
-        return new self(
-            url: $requestData->getTargetUrl(),
-            method: $requestData->getHttpMethod()->value
-        );
-    }
 
     public function getUrl(): string
     {

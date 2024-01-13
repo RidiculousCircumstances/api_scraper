@@ -4,8 +4,6 @@ namespace App\Service\ApiScraper\ScraperClient;
 
 use App\Service\ApiScraper\Context\ScraperContext;
 use App\Service\ApiScraper\HttpClient\Interface\ClientInterface;
-use App\Service\ApiScraper\HttpClient\RequestAdapter;
-use App\Service\ApiScraper\HttpClient\RequestPayloadBuilder\RequestPayloadBuilderFactory;
 use App\Service\ApiScraper\Instruction\DTO\ScraperInstructionData;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoader\ExternalValueLoader;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\FieldsRandomizer\FieldsRandomizer;
@@ -55,13 +53,8 @@ final readonly class ScraperClient implements ApiScraperClientInterface
                 ->with(new PayloadSigner($instruction->getSecret()))
                 ->transform();
 
-            $payloadBuilder = RequestPayloadBuilderFactory::getBuilder($instruction->getMethod());
-            $request = RequestAdapter::schema($schemaData)
-                ->setBody($payloadBuilder->build($requestData->getCrudePayload()));
+            $request = RequestFactory::getRequest($instruction->getRequestConfig(), $schemaData);
 
-            if ($schemaData->isNeedsAuth()) {
-                $request->setHeaders(['X_AUTH_TOKEN' => $instruction->getAuthToken()]);
-            }
             try {
                 $response = $this->httpClient->request($request);
                 $msg = new ScraperMessage(
@@ -84,7 +77,6 @@ final readonly class ScraperClient implements ApiScraperClientInterface
                         isError: true
                     ));
             }
-
         }
     }
 }

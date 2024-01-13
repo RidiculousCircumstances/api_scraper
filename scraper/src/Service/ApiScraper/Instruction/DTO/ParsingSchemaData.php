@@ -2,7 +2,7 @@
 
 namespace App\Service\ApiScraper\Instruction\DTO;
 
-readonly class ParsingSchemaData
+class ParsingSchemaData
 {
 
     private string $fqcn;
@@ -18,7 +18,7 @@ readonly class ParsingSchemaData
 
     public function getRequestData(): RequestData
     {
-        return clone($this->requestData);
+        return $this->requestData;
     }
 
     public function getResponseData(): ResponseData

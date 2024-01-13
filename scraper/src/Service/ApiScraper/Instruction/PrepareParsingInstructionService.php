@@ -9,6 +9,7 @@ use App\Message\Parsing\Enum\HttpMethodsEnum;
 use App\Message\Parsing\StartParsingCommand;
 use App\Repository\DataSchema\DataSchemaRepository;
 use App\Service\ApiScraper\Instruction\DTO\ParsingSchemaData;
+use App\Service\ApiScraper\Instruction\DTO\RequestConfigData;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
 use App\Service\ApiScraper\Instruction\DTO\ResponseData;
@@ -47,10 +48,11 @@ final readonly class PrepareParsingInstructionService
     {
 
         $instruction = new ScraperInstructionData(
-            method: HttpMethodsEnum::from($command->getMethod()),
-            secret: $command->getSecret(),
-            delay: $command->getDelay(),
-            authToken: $command->getAuthToken()
+            new RequestConfigData(
+                method: HttpMethodsEnum::from($command->getMethod()),
+                secret: $command->getSecret(),
+                delay: $command->getDelay(),
+                authToken: $command->getAuthToken())
         );
 
         $resolve = static function (DataSchema $schema, ScraperInstructionData $instruction) use (&$resolve): ParsingSchemaData {

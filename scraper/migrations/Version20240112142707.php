@@ -16,14 +16,14 @@ use Psr\Container\ContainerInterface;
 /**
  * Auto-generated Migrations: Please modify to your needs!
  */
-final class Version20240108681555 extends AbstractMigration implements ContainerAwareInterface
+final class Version20240112142707 extends AbstractMigration implements ContainerAwareInterface
 {
 
     private ContainerInterface $container;
 
     public function getDescription(): string
     {
-        return 'Load preset with drom request';
+        return 'Сохранение пресета с тестовым запросом';
     }
 
     public function setContainer(ContainerInterface $container): void
@@ -80,8 +80,9 @@ final class Version20240108681555 extends AbstractMigration implements Container
         $dataSchema = new DataSchema();
         $dataSchema
             ->setUrl($url)
-            ->setName('drom plain request')
-            ->setGroupTag($groupTag);
+            ->setName('drom car list')
+            ->setGroupTag($groupTag)
+            ->setNeedsAuth(false);
 
         foreach ($parameters as $key => $value) {
 

@@ -57,6 +57,11 @@ final class ExternalValueLoader implements PayloadTransformerInterface
         return self::$instance;
     }
 
+    public static function getFresh(ResponseRegistry $registry, SuspendableInterface $instruction): ExternalValueLoader
+    {
+        return new self($registry, $instruction);
+    }
+
     /**
      * TODO: в текущей имплементации не будет сохранять контекст между после оттправки сформированного запроса.
      * Он должен быть синглтоном в период саспенда
@@ -65,10 +70,6 @@ final class ExternalValueLoader implements PayloadTransformerInterface
      */
     public function transform(RequestData $requestData): void
     {
-
-        if (!$this->externalItemsQueue->isEmpty()) {
-            $this->currentExternalItem = null;
-        }
 
         $parameters = $requestData->getRequestParameters();
         $payloadRef = &$requestData->getCrudePayloadReference();
@@ -127,11 +128,9 @@ final class ExternalValueLoader implements PayloadTransformerInterface
             $this->externalItemsQueue->push(...$items);
         }
 
-        if (!$this->currentExternalItem) {
-            $this->currentExternalItem = $this->externalItemsQueue->pop();
-        }
+        $item = $this->externalItemsQueue->pop();
 
-        return $this->pathExplorer->extractValue($path, $this->currentExternalItem);
+        return $this->pathExplorer->extractValue($path, $item);
 
     }
 

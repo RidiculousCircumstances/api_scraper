@@ -6,6 +6,7 @@ use App\Service\ApiScraper\Context\ScraperContext;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PageIncrementor;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
+use App\Tests\Providers\PayloadDataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PageIncrementorTest extends TestCase

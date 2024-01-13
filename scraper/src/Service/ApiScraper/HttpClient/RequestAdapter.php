@@ -13,7 +13,7 @@ final class RequestAdapter implements DataSourceInterface
         private string|null $method = null,
         private mixed       $body = null,
         private array|null  $proxy = null,
-        private array|null  $headers = null
+        private array       $headers = []
     )
     {
     }

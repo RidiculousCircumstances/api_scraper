@@ -7,6 +7,7 @@ use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoade
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\Interface\SuspendableInterface;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\UrlSegmentReplacer\UrlSegmentReplacer;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
+use App\Tests\Providers\UrlSegmenterDataProvider;
 use PHPUnit\Framework\TestCase;
 
 class UrlSegmentReplacerTest extends TestCase

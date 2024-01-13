@@ -8,6 +8,7 @@ use App\Service\ApiScraper\HttpClient\RequestAdapter;
 use App\Service\ApiScraper\HttpClient\RequestPayloadBuilder\RequestPayloadBuilderFactory;
 use App\Service\ApiScraper\Instruction\DTO\ScraperInstructionData;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoader\ExternalValueLoader;
+use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\FieldsRandomizer\FieldsRandomizer;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PageIncrementor;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PayloadSigner\PayloadSigner;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\TimeStamper;
@@ -42,24 +43,25 @@ final readonly class ScraperClient implements ApiScraperClientInterface
 
             usleep($instruction->getDelay());
 
-            $schema = $instruction->extract();
-            $requestData = $schema->getRequestData();
+            $schemaData = $instruction->extract();
+            $requestData = $schemaData->getRequestData();
 
             PayloadTransformPipe::payload($requestData)
                 ->with(new TimeStamper())
                 ->with(ExternalValueLoader::new($registry, $instruction))
                 ->with(new UrlSegmentReplacer())
                 ->with(new PageIncrementor($this->ctx))
+                ->with(new FieldsRandomizer())
                 ->with(new PayloadSigner($instruction->getSecret()))
                 ->transform();
 
             $payloadBuilder = RequestPayloadBuilderFactory::getBuilder($instruction->getMethod());
-            $request = RequestAdapter::schema($schema)
-                ->setBody($payloadBuilder->build($requestData->getCrudePayload()))
-                ->setHeaders([
-                    'X-AUTH_TOKEN' => $instruction->getAuthToken()
-                ]);
+            $request = RequestAdapter::schema($schemaData)
+                ->setBody($payloadBuilder->build($requestData->getCrudePayload()));
 
+            if ($schemaData->isNeedsAuth()) {
+                $request->setHeaders(['X_AUTH_TOKEN' => $instruction->getAuthToken()]);
+            }
             try {
                 $response = $this->httpClient->request($request);
                 $msg = new ScraperMessage(
@@ -71,7 +73,7 @@ final readonly class ScraperClient implements ApiScraperClientInterface
                 }
                 $this->ctx->setMessage($msg);
                 $registry->add(new ResponseRecord(
-                    requestId: $schema->getFqcn(),
+                    requestId: $schemaData->getFqcn(),
                     content: $response
                 ));
             } catch (ClientExceptionInterface $exception) {

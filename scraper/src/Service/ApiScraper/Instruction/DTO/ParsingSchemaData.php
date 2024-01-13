@@ -10,6 +10,7 @@ readonly class ParsingSchemaData
     public function __construct(
         private RequestData  $requestData,
         private ResponseData $responseData,
+        private bool|null    $needsAuth
     )
     {
         $this->fqcn = get_class($this) . '_' . spl_object_id($this);
@@ -17,7 +18,7 @@ readonly class ParsingSchemaData
 
     public function getRequestData(): RequestData
     {
-        return $this->requestData;
+        return clone($this->requestData);
     }
 
     public function getResponseData(): ResponseData
@@ -28,6 +29,11 @@ readonly class ParsingSchemaData
     public function getFqcn(): string
     {
         return $this->fqcn;
+    }
+
+    public function isNeedsAuth(): bool
+    {
+        return (bool)$this->needsAuth;
     }
 
 }

@@ -23,7 +23,7 @@ class RequestParameter
     #[ORM\Column(length: 255, nullable: true)]
     private string|null $value = null;
 
-    #[ORM\ManyToOne(inversedBy: 'externalRequestParameters')]
+    #[ORM\ManyToOne(inversedBy: 'requestParameters')]
     private DataSchema|null $externalSchema = null;
 
     public function __toString(): string

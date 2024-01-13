@@ -91,7 +91,7 @@ final readonly class PrepareParsingInstructionService
 
             $parsingSchemaData = new ParsingSchemaData(
                 requestData: $requestData,
-                responseData: $responseData
+                responseData: $responseData, needsAuth: $schema->isNeedsAuth()
             );
 
             $instruction->push($parsingSchemaData);

@@ -21,15 +21,19 @@ class UrlSegmentReplacer implements PayloadTransformerInterface
     public function transform(RequestData $requestData): void
     {
         $payloadRef = &$requestData->getCrudePayloadReference();
+
         $url = $requestData->getTargetUrl();
 
         $segments = $this->urlExplorer->getSegments($url);
 
         foreach ($segments as $segment) {
-            $value = $payloadRef[$segment->getFullCode()];
-            $url = str_replace($segment->getFullCode(), $value, $url);
+            $fullCode = $segment->getFullCode();
+            $value = $payloadRef[$fullCode];
+            $url = str_replace($fullCode, $value, $url);
         }
 
         $requestData->setTargetUrl($url);
+
+        $a = 1;
     }
 }

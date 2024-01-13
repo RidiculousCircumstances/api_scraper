@@ -5,6 +5,7 @@ namespace App\Tests\Service\ApiScraper\PayloadPipe;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\TimeStamper;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
+use App\Tests\Providers\PayloadDataProvider;
 use PHPUnit\Framework\TestCase;
 
 class TimeStamperTest extends TestCase

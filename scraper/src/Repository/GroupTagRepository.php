@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\GroupTag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,28 +22,16 @@ class GroupTagRepository extends ServiceEntityRepository
         parent::__construct($registry, GroupTag::class);
     }
 
-//    /**
-//     * @return GroupTag[] Returns an array of GroupTag objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('g')
-//            ->andWhere('g.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('g.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function findByCode($value): GroupTag|null
+    {
+        return $this->createQueryBuilder('g')
+            ->andWhere('g.code = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 
-//    public function findOneBySomeField($value): ?GroupTag
-//    {
-//        return $this->createQueryBuilder('g')
-//            ->andWhere('g.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

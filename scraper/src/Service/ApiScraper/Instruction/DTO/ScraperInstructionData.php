@@ -18,6 +18,8 @@ class ScraperInstructionData implements SuspendableInterface
 
     private bool $loopPassed = false;
 
+    private bool $firstTime = true;
+
     public function __construct(
         private readonly HttpMethodsEnum $method,
         private bool|null                $suspended = null,
@@ -55,12 +57,22 @@ class ScraperInstructionData implements SuspendableInterface
         }
 
         $list = $this->schemasList;
-        $current = $list->current();
 
-        if (!$this->suspended) {
+        if (!$this->firstTime && !$this->isSuspended()) {
             $list->next();
         }
 
+        if ($this->firstTime) {
+            $this->firstTime = false;
+        }
+
+        $current = $list->current();
+//
+//        if ($this->isSuspended() && !$this->wasSuspended) {
+//            $this->wasSuspended = true;
+//            $list->prev();
+//            $current = $list->current();
+//        }
 
         if (!$list->valid()) {
             $list->rewind();
@@ -68,6 +80,15 @@ class ScraperInstructionData implements SuspendableInterface
         }
 
         return $current;
+    }
+
+    /**
+     * Является ли очередь инструкций заблокированной
+     * @return bool
+     */
+    public function isSuspended(): bool
+    {
+        return (bool)$this->suspended;
     }
 
     public function getSecret(): string|null
@@ -81,7 +102,7 @@ class ScraperInstructionData implements SuspendableInterface
      */
     public function executed(): bool
     {
-        return $this->loopPassed;
+        return !$this->isSuspended() && $this->loopPassed;
     }
 
     public function getMethod(): HttpMethodsEnum
@@ -96,15 +117,6 @@ class ScraperInstructionData implements SuspendableInterface
     public function getDelay(): int
     {
         return $this->delay;
-    }
-
-    /**
-     * Является ли очередь инструкций заблокированной
-     * @return bool
-     */
-    public function isSuspended(): bool
-    {
-        return $this->suspended;
     }
 
     /**

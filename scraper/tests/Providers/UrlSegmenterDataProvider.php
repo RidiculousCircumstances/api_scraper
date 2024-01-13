@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Service\ApiScraper\PayloadPipe;
+namespace App\Tests\Providers;
 
 use App\Message\Parsing\Enum\HttpMethodsEnum;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
@@ -8,7 +8,7 @@ use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRecord;
 use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
 
-class PayloadDataProvider
+class UrlSegmenterDataProvider
 {
     public static function providePayload(): array
     {
@@ -44,11 +44,6 @@ class PayloadDataProvider
                 value: 'inglip',
             ),
             new RequestParameterData(
-                key: 'needs_external_key',
-                value: 'data.*.name',
-                externalSourceId: 'request_1'
-            ),
-            new RequestParameterData(
                 key: 'timestamp',
                 value: '{{:timestamp}}',
             ),
@@ -63,7 +58,7 @@ class PayloadDataProvider
             ),
             new RequestParameterData(
                 key: '{{:url_parameter=p2}}',
-                value: 'data.*.name',
+                value: 'data.*.whatever',
                 externalSourceId: 'request_1'
             ),
         ];
@@ -77,7 +72,7 @@ class PayloadDataProvider
         }
 
         $requestData = new RequestData(
-            targetUrl: 'https://api.drom.com/v1.3/{{:url_parameter=p2}}/etc/{{:url_parameter=p1}}}}',
+            targetUrl: 'https://api.drom.com/v1.3/{{:url_parameter=p2}}/etc/{{:url_parameter=p1}}',
             httpMethod: HttpMethodsEnum::GET,
             requestParameters: $requestParameters,
             crudePayload: $payload

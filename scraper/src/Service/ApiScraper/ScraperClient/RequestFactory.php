@@ -4,12 +4,12 @@ namespace App\Service\ApiScraper\ScraperClient;
 
 use App\Service\ApiScraper\HttpClient\RequestAdapter;
 use App\Service\ApiScraper\HttpClient\RequestPayloadBuilder\RequestPayloadBuilderFactory;
-use App\Service\ApiScraper\Instruction\DTO\ParsingSchemaData;
 use App\Service\ApiScraper\Instruction\DTO\RequestConfigData;
+use App\Service\ApiScraper\Instruction\DTO\ScraperSchemaData;
 
 class RequestFactory
 {
-    public static function getRequest(RequestConfigData $configData, ParsingSchemaData $parsingSchemaData): RequestAdapter
+    public static function getRequest(RequestConfigData $configData, ScraperSchemaData $parsingSchemaData): RequestAdapter
     {
 
         $requestData = $parsingSchemaData->getRequestData();

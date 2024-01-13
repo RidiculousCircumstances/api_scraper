@@ -2,13 +2,13 @@
 
 namespace App\Service\Admin;
 
-use App\Form\Scraper\StartScrapingType;
+use App\Form\Scraper\ControlPanelType;
 use App\Message\Parsing\Enum\HttpMethodsEnum;
 use App\Repository\DataSchema\DataSchemaRepository;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
-readonly class ParsingFormService
+readonly class ControlPanelFormService
 {
 
     public function __construct(private FormFactoryInterface $builder, private DataSchemaRepository $dataSchemaRepository)
@@ -19,7 +19,7 @@ readonly class ParsingFormService
     {
         $schemas = $this->dataSchemaRepository->findAll();
 
-        return $this->builder->createNamedBuilder('', StartScrapingType::class, [
+        return $this->builder->createNamedBuilder('', ControlPanelType::class, [
             'schemaEntities' => $schemas,
             'availableFormats' => ['csv'],
             'availableMethods' => [

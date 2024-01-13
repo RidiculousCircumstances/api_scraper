@@ -5,7 +5,7 @@ namespace App\Tests\Service\ApiScraper\PayloadPipe;
 use App\Service\ApiScraper\Context\ScraperContext;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PageIncrementor;
-use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
+use App\Service\ApiScraper\ResponseBag\ResponseBag;
 use App\Tests\Providers\PayloadDataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -19,11 +19,11 @@ class PageIncrementorTest extends TestCase
 
     /**
      * @dataProvider payloadProvider
-     * @param ResponseRegistry $registry
+     * @param ResponseBag $registry
      * @param RequestData $requestData
      * @return void
      */
-    public function testIncrementing(ResponseRegistry $registry, RequestData $requestData): void
+    public function testIncrementing(ResponseBag $registry, RequestData $requestData): void
     {
 
         $payloadRef = &$requestData->getCrudePayloadReference();

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\ApiScraper\ResponseRegistry;
+namespace App\Service\ApiScraper\ResponseBag;
 
 readonly class ResponseRecord
 {
@@ -8,6 +8,7 @@ readonly class ResponseRecord
         private string $requestId,
 
         private array  $content,
+
     )
     {
     }

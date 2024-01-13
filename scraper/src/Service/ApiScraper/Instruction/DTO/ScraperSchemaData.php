@@ -2,18 +2,16 @@
 
 namespace App\Service\ApiScraper\Instruction\DTO;
 
-class ParsingSchemaData
+class ScraperSchemaData
 {
 
-    private string $fqcn;
-
     public function __construct(
-        private RequestData  $requestData,
-        private ResponseData $responseData,
-        private bool|null    $needsAuth
+        private RequestData     $requestData,
+        private ResponseData    $responseData,
+        private bool|null       $needsAuth,
+        private readonly string $fqcn
     )
     {
-        $this->fqcn = get_class($this) . '_' . spl_object_id($this);
     }
 
     public function getRequestData(): RequestData
@@ -35,5 +33,12 @@ class ParsingSchemaData
     {
         return (bool)$this->needsAuth;
     }
+
+    public function setRequestData(RequestData $requestData): self
+    {
+        $this->requestData = $requestData;
+        return $this;
+    }
+
 
 }

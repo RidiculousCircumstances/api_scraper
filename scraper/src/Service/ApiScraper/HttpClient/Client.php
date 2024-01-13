@@ -2,8 +2,10 @@
 
 namespace App\Service\ApiScraper\HttpClient;
 
+use App\Service\ApiScraper\HttpClient\Exceptions\HttpClientException;
 use App\Service\ApiScraper\HttpClient\Interface\ClientInterface;
 use App\Service\ApiScraper\HttpClient\Interface\DataSourceInterface;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 
 readonly class Client implements ClientInterface
@@ -19,6 +21,7 @@ readonly class Client implements ClientInterface
     /**
      * @throws GuzzleException
      * @throws \JsonException
+     * @throws HttpClientException
      */
     public function request(DataSourceInterface $source): array
     {
@@ -26,13 +29,15 @@ readonly class Client implements ClientInterface
         $url = $source->getUrl();
         $method = $source->getMethod();
         $headers = $source->getHeaders();
-        $proxy = [
-            'https' => 'http://50.174.7.153:80'
-        ];
+        $payload = array_merge_recursive($payload, compact('headers'));
 
-        $payload = array_merge($payload, compact('headers'), $proxy);
+        try {
+            $response = $this->client->request($method, $url, $payload);
+        } catch (ClientException $exception) {
+            $msg = $exception->getResponse()->getBody()->getContents();
+            throw new HttpClientException($msg, $exception->getCode());
+        }
 
-        $response = $this->client->request($method, $url, $payload);
         return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
     }
 }

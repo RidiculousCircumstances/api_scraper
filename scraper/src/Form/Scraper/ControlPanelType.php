@@ -13,7 +13,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class StartScrapingType extends AbstractType
+class ControlPanelType extends AbstractType
 {
     public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
     {

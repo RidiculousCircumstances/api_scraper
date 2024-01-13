@@ -6,7 +6,7 @@ use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoader\ExternalValueLoader;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\Interface\SuspendableInterface;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\UrlSegmentReplacer\UrlSegmentReplacer;
-use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
+use App\Service\ApiScraper\ResponseBag\ResponseBag;
 use App\Tests\Providers\UrlSegmenterDataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -19,11 +19,11 @@ class UrlSegmentReplacerTest extends TestCase
 
     /**
      * @dataProvider payloadProvider
-     * @param ResponseRegistry $registry
+     * @param ResponseBag $registry
      * @param RequestData $requestData
      * @return void
      */
-    public function testSegmentReplacing(ResponseRegistry $registry, RequestData $requestData): void
+    public function testSegmentReplacing(ResponseBag $registry, RequestData $requestData): void
     {
         $replacer = new UrlSegmentReplacer();
 

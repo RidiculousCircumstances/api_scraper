@@ -19,6 +19,7 @@ class OutputSchema
     private string|null $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'outputSchemas')]
+    #[ORM\JoinColumn(nullable: false)]
     private GroupTag|null $groupTag = null;
 
     #[ORM\ManyToMany(targetEntity: ResponseField::class, inversedBy: 'outputSchemas')]

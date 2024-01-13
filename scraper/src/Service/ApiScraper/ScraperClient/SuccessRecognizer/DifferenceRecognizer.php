@@ -2,16 +2,16 @@
 
 namespace App\Service\ApiScraper\ScraperClient\SuccessRecognizer;
 
-use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\Interface\SuccessRecognizerInterface;
+use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\Interface\RecognizerInterface;
 use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\SmithWaterman\SmithWatermanGotoh;
 
-class DifferenceSuccessRecognizer implements SuccessRecognizerInterface
+class DifferenceRecognizer implements RecognizerInterface
 {
 
     private const SIMILARITY_THRESHOLD = 0.26;
 
     private const SLICE_CAPACITY = 15;
-    private static array|null $previousObject = null;
+    private static array|string|null $previousItem = null;
     private SmithWatermanGotoh $comparator;
 
     public function __construct()
@@ -19,14 +19,20 @@ class DifferenceSuccessRecognizer implements SuccessRecognizerInterface
         $this->comparator = new SmithWatermanGotoh();
     }
 
-    public function recognize(array $data): bool
+    public function recognize(array|string $data): bool
     {
-        if (self::$previousObject === null) {
-            self::$previousObject = $data;
+        if (self::$previousItem === null) {
+            self::$previousItem = $data;
             return false;
         }
-        $prevArr = str_split(urldecode(http_build_query(self::$previousObject)), self::SLICE_CAPACITY);
-        $currentArr = str_split(urldecode(http_build_query($data)), self::SLICE_CAPACITY);
+
+        if (!is_string($data)) {
+            $prevArr = str_split(urldecode(http_build_query(self::$previousItem)), self::SLICE_CAPACITY);
+            $currentArr = str_split(urldecode(http_build_query($data)), self::SLICE_CAPACITY);
+        } else {
+            $prevArr = str_split(self::$previousItem);
+            $currentArr = str_split($data);
+        }
 
         $prevArrCount = count($prevArr);
         $currentArrCount = count($currentArr);

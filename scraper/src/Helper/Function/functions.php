@@ -130,4 +130,23 @@ if (!function_exists('set_by_dot_keys')) {
             return $array;
         };
     }
+
+
+}
+
+
+if (!function_exists('deep_copy')) {
+
+    /**
+     * Присваивает значение в массив по точечной нотации. Возвращает копию массива, так как хз как обновлять по ссылке в цепочке коллбэков:(
+     * @param object $object
+     * @param string|null $type
+     * @return mixed
+     */
+    function deep_copy(object $object, string|null $type = null)
+    {
+        return (unserialize(serialize($object), [$type ?? '']));
+    }
+
+
 }

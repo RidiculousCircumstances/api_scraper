@@ -8,13 +8,13 @@ use App\Entity\ResponseField;
 use App\Message\Parsing\Enum\HttpMethodsEnum;
 use App\Message\Parsing\StartParsingCommand;
 use App\Repository\DataSchema\DataSchemaRepository;
-use App\Service\ApiScraper\Instruction\DTO\ParsingSchemaData;
 use App\Service\ApiScraper\Instruction\DTO\RequestConfigData;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
 use App\Service\ApiScraper\Instruction\DTO\ResponseData;
 use App\Service\ApiScraper\Instruction\DTO\ResponseFieldData;
-use App\Service\ApiScraper\Instruction\DTO\ScraperInstructionData;
+use App\Service\ApiScraper\Instruction\DTO\ScraperSchemaData;
+use App\Service\ApiScraper\Instruction\Instruction\ScraperInstruction;
 use RuntimeException;
 
 
@@ -26,10 +26,10 @@ final readonly class PrepareParsingInstructionService
     }
 
     /**
-     * Преобразовать схему запроса в связанную структуру, которую можно последовательно обойти, отправляя запросы
+     * Преобразовать схему запроса из базы данных в связанную структуру, которую можно последовательно обойти, отправляя запросы
      * и используя результат предыдущего запроса для последующего
      */
-    public function prepareParsingInstruction(StartParsingCommand $startParsingCommand): ScraperInstructionData
+    public function prepareParsingInstruction(StartParsingCommand $startParsingCommand): ScraperInstruction
     {
 
         $repo = $this->dataSchemaRepository;
@@ -44,10 +44,10 @@ final readonly class PrepareParsingInstructionService
 
     }
 
-    private function resolveInstruction(DataSchema $schema, StartParsingCommand $command): ScraperInstructionData
+    private function resolveInstruction(DataSchema $schema, StartParsingCommand $command): ScraperInstruction
     {
 
-        $instruction = new ScraperInstructionData(
+        $instruction = new ScraperInstruction(
             new RequestConfigData(
                 method: HttpMethodsEnum::from($command->getMethod()),
                 secret: $command->getSecret(),
@@ -55,7 +55,7 @@ final readonly class PrepareParsingInstructionService
                 authToken: $command->getAuthToken())
         );
 
-        $resolve = static function (DataSchema $schema, ScraperInstructionData $instruction) use (&$resolve): ParsingSchemaData {
+        $resolve = static function (DataSchema $schema, ScraperInstruction $instruction) use (&$resolve): ScraperSchemaData {
 
             $requestParameters = $schema->getRequestParameters();
 
@@ -91,9 +91,11 @@ final readonly class PrepareParsingInstructionService
 
             $responseData = new ResponseData($responseFieldDataArray->toArray());
 
-            $parsingSchemaData = new ParsingSchemaData(
+            $parsingSchemaData = new ScraperSchemaData(
                 requestData: $requestData,
-                responseData: $responseData, needsAuth: $schema->isNeedsAuth()
+                responseData: $responseData,
+                needsAuth: $schema->isNeedsAuth(),
+                fqcn: $schema->getFqcn()
             );
 
             $instruction->push($parsingSchemaData);

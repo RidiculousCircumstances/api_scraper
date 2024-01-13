@@ -7,7 +7,7 @@ use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
 use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\Interface\SuspendableInterface;
-use App\Service\ApiScraper\ResponseRegistry\ResponseRegistry;
+use App\Service\ApiScraper\ResponseBag\ResponseBag;
 use Ds\Queue;
 
 /**
@@ -35,7 +35,7 @@ final class ExternalValueLoader implements PayloadTransformerInterface
     private Queue $parametersQueue;
     private $currentExternalItem = null;
 
-    private function __construct(private readonly ResponseRegistry $registry, private readonly SuspendableInterface $instruction)
+    private function __construct(private readonly ResponseBag $registry, private readonly SuspendableInterface $instruction)
     {
         $this->pathExplorer = new StringPathExplorer();
         $this->externalItemsQueue = new Queue();
@@ -44,11 +44,11 @@ final class ExternalValueLoader implements PayloadTransformerInterface
 
     /**
      * TODO: проверить, сохраняет ли контекст
-     * @param ResponseRegistry $registry
+     * @param ResponseBag $registry
      * @param SuspendableInterface $instruction
      * @return self|null
      */
-    public static function new(ResponseRegistry $registry, SuspendableInterface $instruction): self|null
+    public static function new(ResponseBag $registry, SuspendableInterface $instruction): self|null
     {
         if (self::$instance === null || !$instruction->isSuspended()) {
             self::$instance = new self($registry, $instruction);
@@ -57,7 +57,7 @@ final class ExternalValueLoader implements PayloadTransformerInterface
         return self::$instance;
     }
 
-    public static function getFresh(ResponseRegistry $registry, SuspendableInterface $instruction): ExternalValueLoader
+    public static function getFresh(ResponseBag $registry, SuspendableInterface $instruction): ExternalValueLoader
     {
         return new self($registry, $instruction);
     }
@@ -105,7 +105,7 @@ final class ExternalValueLoader implements PayloadTransformerInterface
              */
 
             if (!$this->instruction->isSuspended()) {
-                $this->instruction->suspended(true);
+                $this->instruction->setSuspended(true);
             }
 
             $value = $this->handleItems($externalPath, $externalData->getContent());
@@ -113,7 +113,7 @@ final class ExternalValueLoader implements PayloadTransformerInterface
             $payloadRef[$parameter->getKey()] = $value;
 
             if ($this->externalItemsQueue->isEmpty()) {
-                $this->instruction->suspended(false);
+                $this->instruction->setSuspended(false);
             }
 
         }

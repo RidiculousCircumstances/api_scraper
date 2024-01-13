@@ -2,7 +2,7 @@
 
 namespace App\Service\ApiScraper\ScraperClient\SuccessRecognizer\Interface;
 
-interface SuccessRecognizerInterface
+interface RecognizerInterface
 {
-    public function recognize(array $data): bool;
+    public function recognize(array|string $data): bool;
 }

@@ -3,6 +3,7 @@
 namespace App\Service\ApiScraper\PayloadPipeline;
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
+use App\Service\ApiScraper\Instruction\DTO\ScraperSchemaData;
 use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
 use Ds\Queue;
 
@@ -16,10 +17,15 @@ final class PayloadTransformPipe
 
     private RequestData $requestData;
 
-    public static function payload(RequestData $requestData): self
+    private ScraperSchemaData $parsingSchemaData;
+
+    public static function payload(ScraperSchemaData $schemaData): self
     {
         $static = new self();
-        $static->requestData = $requestData;
+        /** @var ScraperSchemaData $schemaData */
+        $schemaData = deep_copy($schemaData, ScraperSchemaData::class);
+        $static->parsingSchemaData = $schemaData;
+        $static->requestData = $schemaData->getRequestData();
         $static->transformerQueue = new Queue();
         return $static;
     }
@@ -30,7 +36,7 @@ final class PayloadTransformPipe
         return $this;
     }
 
-    public function transform(): RequestData
+    public function transform(): ScraperSchemaData
     {
         $requestData = $this->requestData;
         $parameters = $requestData->getRequestParameters();
@@ -50,6 +56,7 @@ final class PayloadTransformPipe
             $transformer->transform($requestData);
         }
 
-        return $requestData;
+
+        return $this->parsingSchemaData->setRequestData($requestData);
     }
 }

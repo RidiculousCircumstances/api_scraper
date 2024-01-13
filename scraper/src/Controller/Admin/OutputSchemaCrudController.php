@@ -20,7 +20,7 @@ class OutputSchemaCrudController extends BaseCrudController
     {
         return OutputSchema::class;
     }
- 
+
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->setDisabled();
@@ -38,10 +38,15 @@ class OutputSchemaCrudController extends BaseCrudController
         }
 
         $outputSchema = $this->getContext()?->getEntity()->getInstance();
+        $groupTag = $outputSchema->getGroupTag();
+        if (!$groupTag) {
+            return AssociationField::new('responseFields');
+        }
+
         $groupModifier = new GroupModifier($outputSchema->getGroupTag(), 'entity');
+
         yield AssociationField::new('responseFields')
-            ->setQueryBuilder(fn(QueryBuilder $b) => $groupModifier->apply($b)
-            );
+            ->setQueryBuilder(fn(QueryBuilder $b) => $groupModifier->apply($b));
     }
 
 

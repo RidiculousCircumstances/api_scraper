@@ -45,3 +45,6 @@ services:
 
   App\Repository\DataSchema\DataSchemaRepository:
     public: true
+
+  App\Repository\ResponseField\ResponseFieldRepository:
+    public: true

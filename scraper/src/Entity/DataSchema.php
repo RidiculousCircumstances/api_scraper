@@ -36,7 +36,7 @@ class DataSchema
     private Collection $responseFields;
 
     #[ORM\ManyToOne(cascade: ["persist"], inversedBy: 'dataSchemas')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: false)]
     private GroupTag|null $groupTag = null;
 
     #[ORM\Column(nullable: true)]
@@ -52,6 +52,11 @@ class DataSchema
     public function __toString(): string
     {
         return $this->name . ' ' . $this->id;
+    }
+
+    public function getFqcn(): string
+    {
+        return self::class;
     }
 
     public function getId(): int|null

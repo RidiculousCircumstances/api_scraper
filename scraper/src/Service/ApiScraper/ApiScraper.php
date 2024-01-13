@@ -4,19 +4,19 @@ namespace App\Service\ApiScraper;
 
 use App\Service\ApiScraper\Context\ScraperContext;
 use App\Service\ApiScraper\HttpClient\Client;
-use App\Service\ApiScraper\Instruction\DTO\ScraperInstructionData;
+use App\Service\ApiScraper\Instruction\Instruction\ScraperInstruction;
 use App\Service\ApiScraper\ScraperClient\ScraperClient;
-use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\DifferenceSuccessRecognizer;
+use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\DifferenceRecognizer;
 
 class ApiScraper
 {
 
-    public static function init(ScraperInstructionData $instruction): ScraperContext
+    public static function init(ScraperInstruction $instruction): ScraperContext
     {
 
         $ctx = new ScraperContext();
 
-        $client = new ScraperClient($ctx, $instruction, new Client(), new DifferenceSuccessRecognizer());
+        $client = new ScraperClient($ctx, $instruction, new Client(), new DifferenceRecognizer(), new DifferenceRecognizer());
 
         $ctx->setScraper($client);
 

@@ -40,7 +40,7 @@
       "App\\": "src/"
     },
     "files": [
-      "src/Helper/Function/monads.php"
+      "src/Helper/Function/functions.php"
     ]
   },
   "autoload-dev": {

@@ -2,7 +2,7 @@
 
 namespace App\Tests\Providers;
 
-use App\Message\Parsing\Enum\HttpMethodsEnum;
+use App\Message\Scraper\Enum\HttpMethodsEnum;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
 use App\Service\ApiScraper\ResponseBag\ResponseBag;
@@ -84,7 +84,7 @@ class PayloadDataProvider
         );
 
         $registry = new ResponseBag();
-        $registry->add($responseRecord);
+        $registry->addResponseRecord($responseRecord);
 
         return [
             [$registry, $requestData]

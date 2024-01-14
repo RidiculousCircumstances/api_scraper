@@ -3,6 +3,7 @@
 namespace App\Form\Scraper;
 
 use App\Entity\DataSchema;
+use App\Message\Scraper\Enum\OutputFormatsEnum;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -40,8 +41,11 @@ class ControlPanelType extends AbstractType
 
         $formatChoices = [];
 
+        /**
+         * @var OutputFormatsEnum $format
+         */
         foreach ($formats as $format) {
-            $formatChoices[$format] = $format;
+            $formatChoices[$format->value] = $format->value;
         }
 
         $methods = $mOptionsData
@@ -56,7 +60,7 @@ class ControlPanelType extends AbstractType
         $builder
             ->add('schema', ChoiceType::class, [
                 'choices' => $dataSchemaChoices,
-                'label' => 'Использовать схему данных: ',
+                'label' => 'Использовать схему парсинга: ',
                 'placeholder' => 'Выбрать...'
             ])
             ->add('format', ChoiceType::class, [
@@ -64,9 +68,9 @@ class ControlPanelType extends AbstractType
                 'label' => 'Парсить в: ',
                 'placeholder' => 'Выбрать...'
             ])
-            ->add('path', TextType::class, [
-                'label' => 'Сохранять в: ',
-                'attr' => ['placeholder' => 'Укажите путь от корня...']
+            ->add('file', TextType::class, [
+                'label' => 'Имя файла: ',
+                'attr' => ['placeholder' => '/drom_api_scraper/output']
             ])
             ->add('method', ChoiceType::class, [
                 'required' => true,

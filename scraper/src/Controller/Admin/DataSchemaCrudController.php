@@ -7,6 +7,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class DataSchemaCrudController extends BaseCrudController
@@ -30,6 +31,8 @@ class DataSchemaCrudController extends BaseCrudController
 
         yield TextField::new('name');
         yield TextField::new('url');
+        yield IntegerField::new('execution_order')->setHelp('Порядок исполнения в очереди группы (очередь с приоритетом)');
+        yield BooleanField::new('mute')->setHelp('икслючает запрос из очереди исполнения');
         yield BooleanField::new('needs_auth');
         yield CollectionField::new('requestParameters')->useEntryCrudForm();
         yield CollectionField::new('responseFields')->useEntryCrudForm();

@@ -17,16 +17,33 @@ use App\Service\ApiScraper\ResponseBag\ResponseBag;
 use App\Service\ApiScraper\ResponseBag\ResponseRecord;
 use App\Service\ApiScraper\ScraperClient\Interface\ApiScraperClientInterface;
 use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\Interface\RecognizerInterface;
+use App\Service\ApiScraper\ScraperMessage\Message\Enum\ScraperStatusesEnum;
+use App\Service\ApiScraper\ScraperMessage\Message\ScraperMessage;
 use RuntimeException;
 
 final class ScraperClient implements ApiScraperClientInterface
 {
 
+    /**
+     * Максимальное количество неудачных попыток
+     */
     public const RETRIES = 2;
 
+    /**
+     * Текущее количество неудач
+     * @var int
+     */
     private int $failuresCount = 0;
 
+    /**
+     *Флаг принудительного завершения программмы
+     * @var bool
+     */
     private bool $terminate = false;
+
+    private bool $pending = true;
+
+    private bool $firstResponse = true;
 
     public function __construct(
         private readonly ScraperContext      $ctx,
@@ -45,10 +62,24 @@ final class ScraperClient implements ApiScraperClientInterface
             throw new RuntimeException('[ScraperClient] Превышен лимит неудачных запросов.');
         }
 
+        if ($this->firstResponse) {
+            $this->firstResponse = false;
+        } else {
+            $this->ctx->setIsFirstResponse(false);
+        }
+
         $responseBag = new ResponseBag();
         $instruction = $this->instruction;
 
         $instruction->rewind();
+
+        if ($this->pending) {
+            $msg = new ScraperMessage(payload: 'running', ctx: $this->ctx);
+            $this->ctx
+                ->setScraperStatus(ScraperStatusesEnum::PROCESS)
+                ->setMessage($msg);
+            $this->pending = false;
+        }
 
         while (!$instruction->isExecuted()) {
 
@@ -79,7 +110,7 @@ final class ScraperClient implements ApiScraperClientInterface
                 /**
                  * Собираем все респонсы в рамках инструкции, затем отправляем в контекст
                  */
-                $responseBag->add(new ResponseRecord(
+                $responseBag->addResponseRecord(new ResponseRecord(
                     requestId: $schemaData->getFqcn(),
                     content: $response,
                 ));
@@ -89,12 +120,15 @@ final class ScraperClient implements ApiScraperClientInterface
                 }
 
                 $msg = new ScraperMessage(
-                    payload: $response,
-                    url: $request->getUrl(),
+                    payload: $responseBag,
+                    ctx: $this->ctx,
                 );
 
+                /**
+                 * TODO:проверить, отображает ли успех в ui
+                 */
                 if ($this->successRecognizer->recognize($response)) {
-                    $msg->setSuccess();
+                    $this->ctx->setScraperStatus(ScraperStatusesEnum::SUCCESS);
                 }
 
                 $this->ctx->setMessage($msg);
@@ -124,13 +158,10 @@ final class ScraperClient implements ApiScraperClientInterface
                 if (!$this->badOutcomeRecognizer->recognize($exception->getCode())) {
                     continue;
                 }
-
+                $errorMsg = new ScraperMessage(payload: $msg, ctx: $this->ctx);
                 $this->ctx
-                    ->setMessage(new ScraperMessage(
-                        payload: $msg,
-                        url: $request->getUrl(),
-                        isError: true
-                    ));
+                    ->setScraperStatus(ScraperStatusesEnum::ERROR)
+                    ->setMessage($errorMsg);
             }
         }
     }

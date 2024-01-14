@@ -2,11 +2,14 @@
 
 namespace App\MessageHandler\Event;
 
-use App\Service\ApiScraper\ScraperClient\ScraperMessage;
-use App\Service\ScraperStatus\ScraperStatusStore;
+use App\Service\ApiScraper\ScraperMessage\Message\ScraperMessage;
+use App\Service\ScraperStatusUI\ScraperStatusStore;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+/**
+ * Сохраняет сообщения скрапера, которые выводятся на панель управления.
+ */
 #[AsMessageHandler]
 readonly class DisplayParsingStatusHandler
 {

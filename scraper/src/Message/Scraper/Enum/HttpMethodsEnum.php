@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Message\Parsing\Enum;
+namespace App\Message\Scraper\Enum;
 
 enum HttpMethodsEnum: string
 {
     case GET = 'get';
-
-    case POST = 'post';
 }

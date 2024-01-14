@@ -2,7 +2,7 @@
 
 namespace App\Service\ApiScraper\Instruction\DTO;
 
-use App\Message\Parsing\Enum\HttpMethodsEnum;
+use App\Message\Scraper\Enum\HttpMethodsEnum;
 
 class RequestData
 {

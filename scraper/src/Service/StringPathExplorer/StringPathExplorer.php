@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValueLoader;
+namespace App\Service\StringPathExplorer;
 
 final class StringPathExplorer
 {
@@ -10,11 +10,6 @@ final class StringPathExplorer
     private const PATH_TO_MULTIPLE_ITEMS_PATTERN = '/(?<array>\S+)\.\*/';
 
     private const PATH_TO_VALUE_PATTERN = '/\.\*\.(?<value>.*)/';
-
-    public function checkMultipleItemsInPath(string $path): bool
-    {
-        return (bool)preg_match(self::MULTIPLE_ITEMS_PATH_PATTERN, $path);
-    }
 
     public function extractItems(string $path, array $content): array|null
     {
@@ -28,9 +23,16 @@ final class StringPathExplorer
 
     public function extractValue(string $path, array $content): mixed
     {
-        $pathToValueMatches = [];
-        preg_match(self::PATH_TO_VALUE_PATTERN, $path, $pathToValueMatches);
+        if ($this->checkMultipleItemsInPath($path)) {
+            $pathToValueMatches = [];
+            preg_match(self::PATH_TO_VALUE_PATTERN, $path, $pathToValueMatches);
+            $path = $pathToValueMatches['value'];
+        }
+        return m($content)(get_by_dot_keys($path))();
+    }
 
-        return m($content)(get_by_dot_keys($pathToValueMatches['value']))();
+    public function checkMultipleItemsInPath(string $path): bool
+    {
+        return (bool)preg_match(self::MULTIPLE_ITEMS_PATH_PATTERN, $path);
     }
 }

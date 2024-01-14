@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Message\Parsing;
+namespace App\Message\Scraper;
 
 use App\Helper\Attribute\Constraints\Enum\Enum;
-use App\Message\Parsing\Enum\HttpMethodsEnum;
-use App\Message\Parsing\Enum\OutputFormatsEnum;
+use App\Message\Scraper\Enum\HttpMethodsEnum;
+use App\Message\Scraper\Enum\OutputFormatsEnum;
 use Symfony\Component\Validator\Constraints\Type;
 
-readonly class StartParsingCommand
+readonly class StartScraperCommand
 {
     public function __construct(
 
@@ -19,7 +19,7 @@ readonly class StartParsingCommand
         private string      $format,
 
         #[Type('string')]
-        private string      $path,
+        private string      $file,
 
         #[Type('boolean')]
         private bool|null   $useProxy,
@@ -50,9 +50,9 @@ readonly class StartParsingCommand
         return $this->format;
     }
 
-    public function getPath(): string
+    public function getFileName(): string
     {
-        return $this->path;
+        return $this->file;
     }
 
     public function getUseProxy(): bool
@@ -60,7 +60,7 @@ readonly class StartParsingCommand
         return (bool)$this->useProxy;
     }
 
-    public function getSecret(): ?string
+    public function getSecret(): string|null
     {
         return $this->secret;
     }

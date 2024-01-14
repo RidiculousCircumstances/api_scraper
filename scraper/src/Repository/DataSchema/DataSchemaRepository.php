@@ -7,7 +7,10 @@ use App\Entity\GroupTag;
 use App\Repository\Common\Modifier\ModifierManager;
 use App\Repository\DataSchema\Modifier\ExcludeByIdsModifier;
 use App\Repository\DataSchema\Modifier\GroupModifier;
+use App\Repository\DataSchema\Modifier\HighPriorityModifier;
+use App\Repository\DataSchema\Modifier\NotMutedModifier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,30 +26,56 @@ class DataSchemaRepository extends ServiceEntityRepository
 
     public const ALIAS = 'dataSchema';
 
-    public function __construct(ManagerRegistry $registry, private readonly ModifierManager $modifierManager)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, DataSchema::class);
     }
 
     public function findByGroupTag(GroupTag $groupTag): mixed
     {
-        $groupTagModifier = new GroupModifier($groupTag);
 
         $qb = $this->createQueryBuilder(self::ALIAS);
 
-        $this->modifierManager->add($groupTagModifier)->apply($qb);
+        $modifierManager = new ModifierManager();
+
+        $modifierManager
+            ->add(new GroupModifier($groupTag))
+            ->apply($qb);
 
         return $qb
             ->getQuery()
             ->getResult();
     }
 
+    /**
+     * Получить основную схему группы, с которой начнется исполнение инструкции
+     * @param GroupTag $groupTag
+     * @return float|int|mixed|string
+     * @throws NonUniqueResultException
+     */
+    public function findHighPrioritySchemaByGroup(GroupTag $groupTag): mixed
+    {
+        $qb = $this->createQueryBuilder(self::ALIAS);
+        $modifierManager = new ModifierManager();
+
+        $modifierManager
+            ->add(new GroupModifier($groupTag))
+            ->add(new NotMutedModifier())
+            ->add(new HighPriorityModifier())
+            ->apply($qb);
+
+        return $qb
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findByGroupTagExcludingById(GroupTag $groupTag, array $excludeIds): mixed
     {
 
         $qb = $this->createQueryBuilder(self::ALIAS);
+        $modifierManager = new ModifierManager();
 
-        $this->modifierManager
+        $modifierManager
             ->add(new GroupModifier($groupTag))
             ->add(new ExcludeByIdsModifier($excludeIds))
             ->apply($qb);
@@ -55,4 +84,5 @@ class DataSchemaRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
 }

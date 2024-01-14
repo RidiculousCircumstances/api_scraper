@@ -8,6 +8,7 @@ use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
 use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\Interface\SuspendableInterface;
 use App\Service\ApiScraper\ResponseBag\ResponseBag;
+use App\Service\StringPathExplorer\StringPathExplorer;
 use Ds\Queue;
 
 /**
@@ -33,7 +34,6 @@ final class ExternalValueLoader implements PayloadTransformerInterface
      * @var Queue<RequestParameterData> $parametersQueue
      */
     private Queue $parametersQueue;
-    private $currentExternalItem = null;
 
     private function __construct(private readonly ResponseBag $registry, private readonly SuspendableInterface $instruction)
     {
@@ -43,7 +43,8 @@ final class ExternalValueLoader implements PayloadTransformerInterface
     }
 
     /**
-     * TODO: проверить, сохраняет ли контекст
+     * Возвращает синглтон, когда очередь выполнения заболкирована.
+     * Это нужно для сохранения контекста.
      * @param ResponseBag $registry
      * @param SuspendableInterface $instruction
      * @return self|null
@@ -63,8 +64,7 @@ final class ExternalValueLoader implements PayloadTransformerInterface
     }
 
     /**
-     * TODO: в текущей имплементации не будет сохранять контекст между после оттправки сформированного запроса.
-     * Он должен быть синглтоном в период саспенда
+     * Подгружает значения из выполненных запросов
      * @param RequestData $requestData
      * @return void
      */
@@ -87,7 +87,7 @@ final class ExternalValueLoader implements PayloadTransformerInterface
             }
 
             $externalPath = $parameter->getValue();
-            $externalData = $this->registry->get($externalSourceId);
+            $externalData = $this->registry->getResponseRecordByRequestId($externalSourceId);
 
             /**
              * Если путь не ссылается на множество айтемов - получаем значение обычным образом
@@ -120,6 +120,12 @@ final class ExternalValueLoader implements PayloadTransformerInterface
 
     }
 
+    /**
+     * Извлекает данные из выполненного запроса.
+     * @param string $path
+     * @param array $content
+     * @return mixed
+     */
     private function handleItems(string $path, array $content): mixed
     {
 

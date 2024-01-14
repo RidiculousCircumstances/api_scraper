@@ -2,8 +2,12 @@
 
 namespace App\Repository\OutputSchema;
 
+use App\Entity\GroupTag;
 use App\Entity\OutputSchema;
+use App\Repository\Common\Modifier\ModifierManager;
+use App\Repository\OutputSchema\Modifier\GroupModifier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,9 +20,27 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class OutputSchemaRepository extends ServiceEntityRepository
 {
+
+    public const ALIAS = 'outputSchema';
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, OutputSchema::class);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function findOneByGroup(GroupTag $groupTag): OutputSchema|null
+    {
+
+        $qb = $this->createQueryBuilder(self::ALIAS);
+
+        $modifierManager = new ModifierManager();
+
+        $modifierManager->add(new GroupModifier($groupTag))->apply($qb);
+
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
 }

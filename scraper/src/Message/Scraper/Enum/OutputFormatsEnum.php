@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Message\Parsing\Enum;
+namespace App\Message\Scraper\Enum;
 
 enum OutputFormatsEnum: string
 {

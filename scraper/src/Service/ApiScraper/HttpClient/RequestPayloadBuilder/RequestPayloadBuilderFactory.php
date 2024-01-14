@@ -2,7 +2,7 @@
 
 namespace App\Service\ApiScraper\HttpClient\RequestPayloadBuilder;
 
-use App\Message\Parsing\Enum\HttpMethodsEnum;
+use App\Message\Scraper\Enum\HttpMethodsEnum;
 
 class RequestPayloadBuilderFactory
 {
@@ -11,7 +11,6 @@ class RequestPayloadBuilderFactory
     {
         return match ($httpMethodsEnum) {
             HttpMethodsEnum::GET => new GetPayloadBuilder(),
-            HttpMethodsEnum::POST => new PostPayloadBuilder(),
         };
     }
 }

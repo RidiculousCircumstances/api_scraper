@@ -5,9 +5,12 @@ namespace App\Service\ApiScraper\Instruction;
 use App\Entity\DataSchema;
 use App\Entity\RequestParameter;
 use App\Entity\ResponseField;
-use App\Message\Parsing\Enum\HttpMethodsEnum;
-use App\Message\Parsing\StartParsingCommand;
+use App\Message\Scraper\Enum\HttpMethodsEnum;
+use App\Message\Scraper\Enum\OutputFormatsEnum;
+use App\Message\Scraper\StartScraperCommand;
 use App\Repository\DataSchema\DataSchemaRepository;
+use App\Repository\OutputSchema\OutputSchemaRepository;
+use App\Service\ApiScraper\Instruction\DTO\ParsingConfigData;
 use App\Service\ApiScraper\Instruction\DTO\RequestConfigData;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
@@ -15,12 +18,18 @@ use App\Service\ApiScraper\Instruction\DTO\ResponseData;
 use App\Service\ApiScraper\Instruction\DTO\ResponseFieldData;
 use App\Service\ApiScraper\Instruction\DTO\ScraperSchemaData;
 use App\Service\ApiScraper\Instruction\Instruction\ScraperInstruction;
+use Doctrine\ORM\NonUniqueResultException;
 use RuntimeException;
 
 
-final readonly class PrepareParsingInstructionService
+final readonly class ScraperInstructionFactory
 {
-    public function __construct(private DataSchemaRepository $dataSchemaRepository)
+
+    public function __construct(
+        private OutputSchemaRepository $outputSchemaRepository,
+        private DataSchemaRepository   $dataSchemaRepository,
+        private string                 $baseFilePath
+    )
     {
 
     }
@@ -28,33 +37,59 @@ final readonly class PrepareParsingInstructionService
     /**
      * Преобразовать схему запроса из базы данных в связанную структуру, которую можно последовательно обойти, отправляя запросы
      * и используя результат предыдущего запроса для последующего
+     * @throws NonUniqueResultException
      */
-    public function prepareParsingInstruction(StartParsingCommand $startParsingCommand): ScraperInstruction
+    public function buildInstructionFromCommand(StartScraperCommand $startParsingCommand): ScraperInstruction
     {
 
-        $repo = $this->dataSchemaRepository;
+        $osRepo = $this->outputSchemaRepository;
+        $osSchema = $osRepo->find($startParsingCommand->getSchema());
 
-        $schema = $repo->find($startParsingCommand->getSchema());
-
-        if ($schema === null) {
-            throw new RuntimeException('[PrepareParsingInstructionService] DataSchema with id [' . $startParsingCommand->getSchema() . '] not found');
+        if ($osSchema === null) {
+            throw new RuntimeException('[ScraperInstructionFactory] DataSchema with id [' . $startParsingCommand->getSchema() . '] not found');
         }
 
-        return $this->resolveInstruction($schema, $startParsingCommand);
+        $highPriorityDataSchema = $this->dataSchemaRepository->findHighPrioritySchemaByGroup($osSchema->getGroupTag());
+        return $this->resolveInstruction($highPriorityDataSchema, $startParsingCommand);
 
     }
 
-    private function resolveInstruction(DataSchema $schema, StartParsingCommand $command): ScraperInstruction
+    private function resolveInstruction(DataSchema $schema, StartScraperCommand $command): ScraperInstruction
     {
 
+        /**
+         *Конфигурация для отправки запроса
+         */
+        $requestConfig = new RequestConfigData(
+            method: HttpMethodsEnum::from($command->getMethod()),
+            secret: $command->getSecret(),
+            delay: $command->getDelay(),
+            authToken: $command->getAuthToken());
+
+        /**
+         *Конфигурация парсинга в файл
+         */
+        $parsingConfig = new ParsingConfigData(
+            $command->getFileName(),
+            OutputFormatsEnum::from($command->getFormat()),
+            $this->baseFilePath
+        );
+        /**
+         *Загрузка базового конфига
+         */
         $instruction = new ScraperInstruction(
-            new RequestConfigData(
-                method: HttpMethodsEnum::from($command->getMethod()),
-                secret: $command->getSecret(),
-                delay: $command->getDelay(),
-                authToken: $command->getAuthToken())
+            $requestConfig,
+            $parsingConfig,
+            tag: $schema->getGroupTag()
         );
 
+        /**
+         *
+         * Рекурсивное формирования объекта иснтрукции со связным списком схем связанных запросов
+         * @param DataSchema $schema
+         * @param ScraperInstruction $instruction
+         * @return ScraperSchemaData
+         */
         $resolve = static function (DataSchema $schema, ScraperInstruction $instruction) use (&$resolve): ScraperSchemaData {
 
             $requestParameters = $schema->getRequestParameters();
@@ -95,7 +130,8 @@ final readonly class PrepareParsingInstructionService
                 requestData: $requestData,
                 responseData: $responseData,
                 needsAuth: $schema->isNeedsAuth(),
-                fqcn: $schema->getFqcn()
+                fqcn: $schema->getFqcn(),
+                executionOrder: $schema->getExecutionOrder()
             );
 
             $instruction->push($parsingSchemaData);

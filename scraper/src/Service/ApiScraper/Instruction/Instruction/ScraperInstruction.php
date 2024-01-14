@@ -2,6 +2,7 @@
 
 namespace App\Service\ApiScraper\Instruction\Instruction;
 
+use App\Service\ApiScraper\Instruction\DTO\ParsingConfigData;
 use App\Service\ApiScraper\Instruction\DTO\RequestConfigData;
 use App\Service\ApiScraper\Instruction\DTO\ScraperSchemaData;
 use App\Service\ApiScraper\Instruction\Instruction\State\AbstractInstructionState;
@@ -25,7 +26,9 @@ class ScraperInstruction implements SuspendableInterface
     private AbstractInstructionState $state;
 
     public function __construct(
-        private readonly RequestConfigData $requestConfig
+        private readonly RequestConfigData $requestConfig,
+        private readonly ParsingConfigData $parsingConfigData,
+        private string                     $tag
     )
     {
         $this->schemasList = new SplDoublyLinkedList();
@@ -107,6 +110,21 @@ class ScraperInstruction implements SuspendableInterface
     {
         $this->state = $instructionState;
         $this->state->setInstruction($this);
+    }
+
+    public function getState(): AbstractInstructionState
+    {
+        return $this->state;
+    }
+
+    public function getTag(): string
+    {
+        return $this->tag;
+    }
+
+    public function getParsingConfig(): ParsingConfigData
+    {
+        return $this->parsingConfigData;
     }
 
 }

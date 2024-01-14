@@ -4,6 +4,11 @@ namespace App\Service\ApiScraper\Instruction\Instruction\State;
 
 use App\Service\ApiScraper\Instruction\DTO\ScraperSchemaData;
 
+/**
+ * Обычное состояние очереди инструкций. каждый вызов transform
+ * приводит к смещению курсора. По выполнению всех инструкций сбрасывает
+ * курсор в исходное состояние, оповещает контекст
+ */
 class IterableState extends AbstractInstructionState
 {
 
@@ -29,16 +34,16 @@ class IterableState extends AbstractInstructionState
             $list->next();
         }
 
+        if (!$list->valid() || $list->count() === 1) {
+            $list->rewind();
+            $this->loopPassed = true;
+        }
+
         if ($this->firstTime) {
             $this->firstTime = false;
         }
 
         $current = $list->current();
-
-        if (!$list->valid()) {
-            $list->rewind();
-            $this->loopPassed = true;
-        }
 
         return deep_copy(($current), ScraperSchemaData::class);
 

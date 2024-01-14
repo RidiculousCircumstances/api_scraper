@@ -22,7 +22,7 @@ class ResponseFieldRepository extends ServiceEntityRepository
 
     public const ALIAS = 'responseField';
 
-    public function __construct(ManagerRegistry $registry, private readonly ModifierManager $modifierManager)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ResponseField::class);
     }
@@ -31,7 +31,8 @@ class ResponseFieldRepository extends ServiceEntityRepository
     {
 
         $qb = $this->createQueryBuilder(self::ALIAS);
-        $this->modifierManager->add(new GroupModifier($tag))->apply($qb);
+        $modifierManager = new ModifierManager();
+        $modifierManager->add(new GroupModifier($tag))->apply($qb);
 
         return $qb
             ->getQuery()

@@ -94,7 +94,7 @@ if (!function_exists('get_by_dot_keys')) {
 
             foreach ($path as $key) {
                 $mArray = $mArray(function ($resultedArray) use ($key) {
-                    return $resultedArray[$key];
+                    return $resultedArray[$key] ?? null;
                 });
             }
 

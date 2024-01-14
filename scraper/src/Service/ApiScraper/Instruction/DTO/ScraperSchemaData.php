@@ -2,6 +2,9 @@
 
 namespace App\Service\ApiScraper\Instruction\DTO;
 
+/**
+ * Основной компонент инструкции. Описывает поля запроса и ответа
+ */
 class ScraperSchemaData
 {
 
@@ -9,7 +12,8 @@ class ScraperSchemaData
         private RequestData     $requestData,
         private ResponseData    $responseData,
         private bool|null       $needsAuth,
-        private readonly string $fqcn
+        private readonly string $fqcn,
+        private int|null        $executionOrder
     )
     {
     }
@@ -40,5 +44,9 @@ class ScraperSchemaData
         return $this;
     }
 
+    public function getExecutionOrder(): int|null
+    {
+        return $this->executionOrder;
+    }
 
 }

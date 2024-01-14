@@ -7,6 +7,7 @@ use App\Entity\RequestParameter;
 use App\Entity\ResponseField;
 use App\Migrations\Factory\ContainerAwareInterface;
 use Doctrine\Migrations\AbstractMigration;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
 
 
@@ -20,7 +21,7 @@ abstract class AbstractRequestSeeder extends AbstractMigration implements Contai
         self::$container = $container;
     }
 
-    public function createRequest(array $parameters, DataSchema $schema, callable|null $specificLoopHandler = null, callable|null $specificPersistHandler = null): void
+    protected function createRequest(array $parameters, DataSchema $schema, callable|null $specificLoopHandler = null, callable|null $specificPersistHandler = null): void
     {
 
         foreach ($parameters as $key => $value) {
@@ -61,7 +62,7 @@ abstract class AbstractRequestSeeder extends AbstractMigration implements Contai
         $em->flush();
     }
 
-    public function createResponse(array $fields, DataSchema $schema): void
+    protected function createResponse(array $fields, DataSchema $schema): void
     {
 
         $em = self::$container->get('doctrine.orm.default_entity_manager');
@@ -76,6 +77,11 @@ abstract class AbstractRequestSeeder extends AbstractMigration implements Contai
         }
 
         $em->flush();
+    }
+
+    protected function getEntityManager(): EntityManagerInterface
+    {
+        return self::$container->get('doctrine.orm.default_entity_manager');
     }
 
 }

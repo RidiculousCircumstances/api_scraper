@@ -2,8 +2,10 @@
 
 namespace App\Service\ApiScraper\Context;
 
+use App\Service\ApiScraper\Instruction\Instruction\ScraperInstruction;
 use App\Service\ApiScraper\ScraperClient\Interface\ApiScraperClientInterface;
-use App\Service\ApiScraper\ScraperClient\ScraperMessage;
+use App\Service\ApiScraper\ScraperMessage\Message\Enum\ScraperStatusesEnum;
+use App\Service\ApiScraper\ScraperMessage\Message\ScraperMessage;
 
 class ScraperContext
 {
@@ -16,14 +18,36 @@ class ScraperContext
 
     private int|null $iterationNumber = null;
 
-    public function getState(): ScraperStateEnum
+    private string $tag = '';
+
+    private ScraperInstruction $scraperInstruction;
+
+    private ScraperStatusesEnum $scraperStatus = ScraperStatusesEnum::PENDING;
+
+    private bool $isFirstResponse = true;
+
+
+    public function isRunning(): bool
     {
-        return $this->state;
+        return $this->state === ScraperStateEnum::RUNNING;
     }
 
-    public function setState(ScraperStateEnum $state): void
+    /**
+     * Установить состояние скрапера в RUNNING
+     * @return void
+     */
+    public function run(): void
     {
-        $this->state = $state;
+        $this->state = ScraperStateEnum::RUNNING;
+    }
+
+    /**
+     * Установить состояние скрапера в STOPPED
+     * @return void
+     */
+    public function stop(): void
+    {
+        $this->state = ScraperStateEnum::STOPPED;
     }
 
     public function getScraper(): ApiScraperClientInterface
@@ -40,7 +64,6 @@ class ScraperContext
     public function getMessage(): ScraperMessage|null
     {
         $msg = $this->message;
-        $this->message = null;
         return $msg;
     }
 
@@ -61,5 +84,57 @@ class ScraperContext
         return $this;
     }
 
+    public function getTag(): string
+    {
+        return $this->tag;
+    }
+
+    public function setTag(string $tag): self
+    {
+        $this->tag = $tag;
+        return $this;
+    }
+
+    /**
+     * Получить текущее состояние скрапера
+     * @return ScraperStatusesEnum
+     */
+    public function getScraperStatus(): ScraperStatusesEnum
+    {
+        return $this->scraperStatus;
+    }
+
+    public function setScraperStatus(ScraperStatusesEnum $scraperStatus): self
+    {
+        $this->scraperStatus = $scraperStatus;
+        return $this;
+    }
+
+    public function hasError(): bool
+    {
+        return $this->scraperStatus === ScraperStatusesEnum::ERROR;
+    }
+
+    public function getInstruction(): ScraperInstruction
+    {
+        return $this->scraperInstruction;
+    }
+
+    public function setScraperInstruction(ScraperInstruction $scraperInstruction): self
+    {
+        $this->scraperInstruction = $scraperInstruction;
+        return $this;
+    }
+
+    public function isFirstResponse(): bool
+    {
+        return $this->isFirstResponse;
+    }
+
+    public function setIsFirstResponse(bool $isFirstResponse): self
+    {
+        $this->isFirstResponse = $isFirstResponse;
+        return $this;
+    }
 
 }

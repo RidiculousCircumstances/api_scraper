@@ -39,7 +39,7 @@ final class Version20240113165026 extends AbstractRequestSeeder
             'data.cars.*.id' => 'id объявления',
             'data.cars.*.url' => 'url объявления',
             'data.cars.*.pretty.firm' => 'Марка авто',
-            'data.cars.*.model' => 'Модель авто',
+            'data.cars.*.pretty.model' => 'Модель авто',
             'data.cars.*.price.rub' => 'Цена продажи',
             'data.cars.*.priceCategory' => 'Категория цены',
             'data.cars.*.complectation.name' => 'Комплектация авто',
@@ -58,7 +58,7 @@ final class Version20240113165026 extends AbstractRequestSeeder
 
         $responseDetail = [
             'payload.year' => 'Год выпуска',
-            'payload.mainPhoto' => 'Основное фото',
+            'payload.mainPhoto.0.url' => 'Основное фото',
             'payload.viewsTotal' => 'Просмотры',
             'payload.shortDescription' => 'Короткое описание'
         ];

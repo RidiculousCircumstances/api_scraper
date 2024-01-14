@@ -42,9 +42,15 @@ services:
   App\Repository\GroupTagRepository:
     public: true
 
-
   App\Repository\DataSchema\DataSchemaRepository:
     public: true
 
   App\Repository\ResponseField\ResponseFieldRepository:
     public: true
+
+  App\Repository\Common\ModifierManager:
+    shared: false
+
+  App\Service\ApiScraper\Instruction\ScraperInstructionFactory:
+    arguments:
+      $baseFilePath: '%env(OUTPUT_PATH)%'

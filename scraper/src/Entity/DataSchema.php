@@ -42,6 +42,21 @@ class DataSchema
     #[ORM\Column(nullable: true)]
     private bool|null $needsAuth = null;
 
+    /**
+     * Порядок исполнения в иснтрукции - главым образом нужен
+     * для правильного парсинга в OutputSchema
+     * @var int|null
+     */
+    #[ORM\Column(nullable: true)]
+    private int|null $executionOrder = null;
+
+    /**
+     * Исключает схему из инструкции
+     * @var bool|null
+     */
+    #[ORM\Column(nullable: true)]
+    private bool|null $mute = null;
+
     public function __construct()
     {
         $this->requestParameters = new ArrayCollection();
@@ -56,7 +71,7 @@ class DataSchema
 
     public function getFqcn(): string
     {
-        return self::class;
+        return self::class . '_' . $this->getId();
     }
 
     public function getId(): int|null
@@ -187,6 +202,30 @@ class DataSchema
     public function setNeedsAuth(bool|null $needsAuth): static
     {
         $this->needsAuth = $needsAuth;
+
+        return $this;
+    }
+
+    public function getExecutionOrder(): ?int
+    {
+        return $this->executionOrder;
+    }
+
+    public function setExecutionOrder(?int $executionOrder): static
+    {
+        $this->executionOrder = $executionOrder;
+
+        return $this;
+    }
+
+    public function isMute(): bool|null
+    {
+        return $this->mute;
+    }
+
+    public function setMute(bool|null $mute): static
+    {
+        $this->mute = $mute;
 
         return $this;
     }

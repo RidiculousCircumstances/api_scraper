@@ -16,9 +16,13 @@ class ApiScraper
 
         $ctx = new ScraperContext();
 
+
         $client = new ScraperClient($ctx, $instruction, new Client(), new DifferenceRecognizer(), new DifferenceRecognizer());
 
-        $ctx->setScraper($client);
+        $ctx
+            ->setScraper($client)
+            ->setScraperInstruction($instruction)
+            ->setTag($instruction->getTag());
 
         return $ctx;
     }

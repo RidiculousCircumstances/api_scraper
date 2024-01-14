@@ -18,6 +18,7 @@ services:
       dockerfile: docker/php-fpm/Dockerfile
     volumes:
       - ./scraper:/var/www
+      - ./output:/var/www/output
     networks:
       - scraper
       - postgres
@@ -34,14 +35,14 @@ services:
     tty: true
     command: php bin/console messenger:consume -vv async
 
-#  composer:
-#    build:
-#      dockerfile: ./docker/composer/Dockerfile
-#    environment:
-#      APP_UID: ${APP_UID}
-#      APP_GID: ${APP_GID}
-#    volumes:
-#      - ./scraper:/var/www
+  #  composer:
+  #    build:
+  #      dockerfile: ./docker/composer/Dockerfile
+  #    environment:
+  #      APP_UID: ${APP_UID}
+  #      APP_GID: ${APP_GID}
+  #    volumes:
+  #      - ./scraper:/var/www
 
   nginx:
     build:

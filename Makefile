@@ -8,7 +8,7 @@ echo: ## Install all app dependencies
 	docker compose run -e APP_UID='111' -e APP_GID='222' composer echo $(APP_UID)
 
 autoload:
-	docker compose run composer composer dump-autoload
+	docker compose run web composer dump-autoload
 
 up:
-	docker compose up -d nginx web redis db consumer
+	docker compose up -d nginx web redis db consumer && docker exec -u 0 drom_api_scraper-web-1 chown -R 1000:1000 /var/www/output && docker exec -u 0 drom_api_scraper-web-1 chmod -R 777 /var/www/output

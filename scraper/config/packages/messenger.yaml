@@ -2,7 +2,7 @@ framework:
   messenger:
     default_bus: command.bus
     # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
-    failure_transport: failed
+    #    failure_transport: failed
 
     buses:
       event.bus:
@@ -18,17 +18,11 @@ framework:
       sync: 'sync://'
 
     routing:
-#            'App\Message\ApiScraper\StartParsingCommand': async
+#            'App\Message\ApiScraper\StartScraperCommand': async
 
-# when@test:
-#    framework:
-#        messenger:
-#            transports:
-#                # replace with your transport name here (e.g., my_transport: 'in-memory://')
-#                # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
-#                async: 'in-memory://'
+
 when@dev:
   framework:
     messenger:
       routing:
-        'App\Message\Parsing\StartParsingCommand': sync
+        'App\Message\Scraper\StartScraperCommand': sync

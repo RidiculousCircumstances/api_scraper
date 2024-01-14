@@ -6,7 +6,7 @@ use App\Entity\DataSchema;
 use App\Entity\GroupTag;
 use App\Entity\OutputSchema;
 use App\Service\Admin\ControlPanelFormService;
-use App\Service\ScraperStatus\ScraperStatusStore;
+use App\Service\ScraperStatusUI\ScraperStatusStore;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -37,7 +37,7 @@ class HomeController extends AbstractDashboardController
         $viewParams = [];
         $viewParams['form'] = $form;
         $viewParams['message'] = $scraperMessageCache->get();
-        
+
         return $this->render('control-panel.html.twig', $viewParams);
     }
 

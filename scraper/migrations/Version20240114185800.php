@@ -16,7 +16,7 @@ use Psr\Container\ContainerInterface;
 /**
  * Auto-generated Migrations: Please modify to your needs!
  */
-final class Version20240112142707 extends AbstractMigration implements ContainerAwareInterface
+final class Version20240114185800 extends AbstractMigration implements ContainerAwareInterface
 {
 
     private ContainerInterface $container;

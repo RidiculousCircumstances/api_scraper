@@ -16,7 +16,6 @@ class ApiScraper
 
         $ctx = new ScraperContext();
 
-
         $client = new ScraperClient($ctx, $instruction, new Client(), new DifferenceRecognizer(), new DifferenceRecognizer());
 
         $ctx

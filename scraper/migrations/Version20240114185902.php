@@ -13,7 +13,7 @@ use Psr\Container\NotFoundExceptionInterface;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240113165026 extends AbstractRequestSeeder
+final class Version20240114185902 extends AbstractRequestSeeder
 {
     public function getDescription(): string
     {

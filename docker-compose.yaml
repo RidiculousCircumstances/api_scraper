@@ -52,7 +52,7 @@ services:
       - ./scraper:/var/www
       - ./docker/nginx/ssl:/etc/nginx/ssl
     ports:
-      - "8080:443"
+      - "8080:80"
     links:
       - web
     networks:

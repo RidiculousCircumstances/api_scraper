@@ -10,6 +10,7 @@ use App\Message\Scraper\Enum\OutputFormatsEnum;
 use App\Message\Scraper\StartScraperCommand;
 use App\Repository\DataSchema\DataSchemaRepository;
 use App\Repository\OutputSchema\OutputSchemaRepository;
+use App\Repository\SettingsRepository;
 use App\Service\ApiScraper\Instruction\DTO\ParsingConfigData;
 use App\Service\ApiScraper\Instruction\DTO\RequestConfigData;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
@@ -18,6 +19,7 @@ use App\Service\ApiScraper\Instruction\DTO\ResponseData;
 use App\Service\ApiScraper\Instruction\DTO\ResponseFieldData;
 use App\Service\ApiScraper\Instruction\DTO\ScraperSchemaData;
 use App\Service\ApiScraper\Instruction\Instruction\ScraperInstruction;
+use App\Service\ApiScraper\Proxy\ProxyFactory;
 use Doctrine\ORM\NonUniqueResultException;
 use RuntimeException;
 
@@ -28,7 +30,10 @@ final readonly class ScraperInstructionFactory
     public function __construct(
         private OutputSchemaRepository $outputSchemaRepository,
         private DataSchemaRepository   $dataSchemaRepository,
-        private string                 $baseFilePath
+        private SettingsRepository     $settingsRepository,
+        private ProxyFactory           $proxyFactory,
+        private string                 $baseFilePath,
+
     )
     {
 
@@ -50,21 +55,23 @@ final readonly class ScraperInstructionFactory
         }
 
         $highPriorityDataSchema = $this->dataSchemaRepository->findHighPrioritySchemaByGroup($osSchema->getGroupTag());
-        return $this->resolveInstruction($highPriorityDataSchema, $startParsingCommand);
+        return $this->buildInstruction($highPriorityDataSchema, $startParsingCommand);
 
     }
 
-    private function resolveInstruction(DataSchema $schema, StartScraperCommand $command): ScraperInstruction
+    private function buildInstruction(DataSchema $schema, StartScraperCommand $command): ScraperInstruction
     {
-
         /**
          *Конфигурация для отправки запроса
          */
         $requestConfig = new RequestConfigData(
             method: HttpMethodsEnum::from($command->getMethod()),
+            proxyConfig: $this->proxyFactory->getProxy(),
             secret: $command->getSecret(),
             delay: $command->getDelay(),
-            authToken: $command->getAuthToken());
+            authToken: $command->getAuthToken(),
+            useProxy: $command->getUseProxy()
+        );
 
         /**
          *Конфигурация парсинга в файл

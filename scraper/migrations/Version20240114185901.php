@@ -15,7 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240113061029 extends AbstractRequestSeeder
+final class Version20240114185901 extends AbstractRequestSeeder
 {
     public function getDescription(): string
     {

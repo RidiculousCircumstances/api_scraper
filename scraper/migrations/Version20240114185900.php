@@ -19,7 +19,7 @@ use Psr\Container\NotFoundExceptionInterface;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240112142711 extends AbstractMigration implements ContainerAwareInterface
+final class Version20240114185900 extends AbstractMigration implements ContainerAwareInterface
 {
 
     private ContainerInterface $container;

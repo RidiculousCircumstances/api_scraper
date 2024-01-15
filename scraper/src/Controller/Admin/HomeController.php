@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\DataSchema;
 use App\Entity\GroupTag;
 use App\Entity\OutputSchema;
+use App\Entity\Settings\Settings;
 use App\Service\Admin\ControlPanelFormService;
 use App\Service\ScraperStatusUI\ScraperStatusStore;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -49,9 +50,10 @@ class HomeController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Панель управления', 'fa fa-gear');
+        yield MenuItem::linkToDashboard('Панель управления', 'fa fa-microchip');
         yield MenuItem::linkToCrud('Схема запроса', 'fa fa-file-code-o', DataSchema::class);
         yield MenuItem::linkToCrud('Схема парсинга', 'fa fa-file-arrow-down', OutputSchema::class);
         yield MenuItem::linkToCrud('Группы', 'fa fa-group', GroupTag::class);
+        yield MenuItem::linkToCrud('Настройки', 'fa fa-gear', Settings::class);
     }
 }

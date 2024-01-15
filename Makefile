@@ -12,3 +12,5 @@ autoload:
 
 up:
 	docker compose up -d nginx web redis db consumer && docker exec -u 0 api_scraper-web chown -R 1000:1000 /var/www/output && docker exec -u 0 api_scraper-web chmod -R 777 /var/www/output
+admin-static:
+	docker exec -u 0 api_scraper-web php bin/console assets:install --symlink

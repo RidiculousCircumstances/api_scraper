@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240114063011 extends AbstractRequestSeeder
+final class Version20240114185904 extends AbstractRequestSeeder
 {
     public function getDescription(): string
     {

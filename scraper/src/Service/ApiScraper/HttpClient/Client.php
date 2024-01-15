@@ -7,6 +7,7 @@ use App\Service\ApiScraper\HttpClient\Interface\ClientInterface;
 use App\Service\ApiScraper\HttpClient\Interface\DataSourceInterface;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
 
 readonly class Client implements ClientInterface
 {
@@ -14,9 +15,10 @@ readonly class Client implements ClientInterface
 
     public function __construct()
     {
-        $this->client = new \GuzzleHttp\Client();
+        $this->client = new \GuzzleHttp\Client([
+            RequestOptions::VERIFY => false
+        ]);
     }
-
 
     /**
      * @throws GuzzleException
@@ -29,10 +31,11 @@ readonly class Client implements ClientInterface
         $url = $source->getUrl();
         $method = $source->getMethod();
         $headers = $source->getHeaders();
-        $payload = array_merge_recursive($payload, compact('headers'));
+        $proxy = $source->getProxy();
+        $options = array_merge_recursive($payload, compact('headers'), $proxy);
 
         try {
-            $response = $this->client->request($method, $url, $payload);
+            $response = $this->client->request($method, $url, $options);
         } catch (ClientException $exception) {
             $msg = $exception->getResponse()->getBody()->getContents();
             throw new HttpClientException($msg, $exception->getCode());

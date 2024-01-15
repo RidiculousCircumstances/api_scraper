@@ -10,7 +10,6 @@ use App\Message\Scraper\Enum\OutputFormatsEnum;
 use App\Message\Scraper\StartScraperCommand;
 use App\Repository\DataSchema\DataSchemaRepository;
 use App\Repository\OutputSchema\OutputSchemaRepository;
-use App\Repository\SettingsRepository;
 use App\Service\ApiScraper\Instruction\DTO\ParsingConfigData;
 use App\Service\ApiScraper\Instruction\DTO\RequestConfigData;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
@@ -30,7 +29,6 @@ final readonly class ScraperInstructionFactory
     public function __construct(
         private OutputSchemaRepository $outputSchemaRepository,
         private DataSchemaRepository   $dataSchemaRepository,
-        private SettingsRepository     $settingsRepository,
         private ProxyFactory           $proxyFactory,
         private string                 $baseFilePath,
 
@@ -79,7 +77,7 @@ final readonly class ScraperInstructionFactory
         $parsingConfig = new ParsingConfigData(
             $command->getFileName(),
             OutputFormatsEnum::from($command->getFormat()),
-            $this->baseFilePath
+            $this->baseFilePath . time() . '/'
         );
         /**
          *Загрузка базового конфига

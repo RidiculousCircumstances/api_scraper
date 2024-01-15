@@ -6,6 +6,7 @@ use App\Service\ApiScraper\Instruction\Instruction\ScraperInstruction;
 use App\Service\ApiScraper\ScraperClient\Interface\ApiScraperClientInterface;
 use App\Service\ApiScraper\ScraperMessage\Message\Enum\ScraperStatusesEnum;
 use App\Service\ApiScraper\ScraperMessage\Message\ScraperMessage;
+use App\Service\ApiScraper\ScraperMessage\Message\ScraperNotification;
 
 class ScraperContext
 {
@@ -16,7 +17,13 @@ class ScraperContext
 
     private ScraperMessage|null $message = null;
 
+    /**
+     * Количество полных циклов вместе со свзяанными запросами
+     * @var int|null $iterationNumber
+     */
     private int|null $iterationNumber = null;
+
+    private int|null $requestsCount = null;
 
     private string $tag = '';
 
@@ -25,6 +32,8 @@ class ScraperContext
     private ScraperStatusesEnum $scraperStatus = ScraperStatusesEnum::PENDING;
 
     private bool $isFirstResponse = true;
+
+    private ScraperNotification $notification;
 
 
     public function isRunning(): bool
@@ -135,6 +144,26 @@ class ScraperContext
     {
         $this->isFirstResponse = $isFirstResponse;
         return $this;
+    }
+
+    public function getNotification(): ScraperNotification
+    {
+        return $this->notification;
+    }
+
+    public function setNotification(ScraperNotification $notification): void
+    {
+        $this->notification = $notification;
+    }
+
+    public function getRequestsCount(): ?int
+    {
+        return $this->requestsCount;
+    }
+
+    public function addRequestsCount(): void
+    {
+        $this->requestsCount++;
     }
 
 }

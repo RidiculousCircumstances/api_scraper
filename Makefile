@@ -1,16 +1,18 @@
 APP_UID=$(shell id -u)
 APP_GID=$(shell id -g)
 
-#install: ## Install all app dependencies
-#	docker compose run --rm --user $(APP_UID):$(APP_GID) --no-deps composer composer install --ansi --prefer-dist
-
-echo: ## Install all app dependencies
-	docker compose run -e APP_UID='111' -e APP_GID='222' composer echo $(APP_UID)
 
 autoload:
 	docker compose run web composer dump-autoload
 
-up:
-	docker compose up -d nginx web redis db consumer && docker exec -u 0 api_scraper-web chown -R 1000:1000 /var/www/output && docker exec -u 0 api_scraper-web chmod -R 777 /var/www/output
-admin-static:
+run:
+	docker compose up -d nginx web redis db consumer && docker exec -u 0 api_scraper-web chown -R $(APP_UID):$(APP_GID) /var/www/output && docker exec -u 0 api_scraper-web chmod -R 644 /var/www/output
+
+build-admin-static:
 	docker exec -u 0 api_scraper-web php bin/console assets:install --symlink
+
+install-deps:
+	docker exec -u 0 api_scraper-web composer install
+
+install:
+	 make run && make install-deps && make build-admin-static && cp ./env-example .env && cp ./scraper/.env-example ./scraper/.env

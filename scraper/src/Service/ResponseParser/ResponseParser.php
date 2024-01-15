@@ -6,7 +6,7 @@ namespace App\Service\ResponseParser;
 use App\Service\ApiScraper\Instruction\DTO\ParsingConfigData;
 use App\Service\ApiScraper\ScraperMessage\Message\ScraperMessage;
 use App\Service\ResponseParser\Instruction\DTO\ParserInstruction;
-use App\Service\ResponseParser\PostProcessPipeline\PostProcessor\ImageLoader;
+use App\Service\ResponseParser\PostProcessPipeline\PostProcessor\FileLoader;
 use App\Service\ResponseParser\PostProcessPipeline\PostProcessPipe;
 use App\Service\ResponseParser\ResponseMapper\DTO\WritableRowData;
 use App\Service\ResponseParser\ResponseMapper\ResponseMapper;
@@ -48,7 +48,7 @@ readonly class ResponseParser
         $outputDirectory = $this->config->getBaseFilePath();
 
         $writableRow = PostProcessPipe::payload($writableRow)
-            ->with(new ImageLoader($outputDirectory))
+            ->with(new FileLoader($outputDirectory))
             ->transform();
 
         return $writableRow;

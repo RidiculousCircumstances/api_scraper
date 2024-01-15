@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Service\ScraperStatusUI;
+namespace App\Service\ScraperUI;
 
 use App\Service\ApiScraper\ScraperMessage\Message\Enum\ScraperStatusesEnum;
 
 readonly class ScraperUIMessage
 {
-
 
     private string $message;
 

@@ -17,7 +17,8 @@ class TimeStamperTest extends TestCase
 
     /**
      * @dataProvider payloadProvider
-     * @param array $payload
+     * @param ResponseBag $registry
+     * @param RequestData $requestData
      * @return void
      */
     public function testTimeStamper(ResponseBag $registry, RequestData $requestData): void

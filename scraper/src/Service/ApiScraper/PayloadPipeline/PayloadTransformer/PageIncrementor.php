@@ -3,7 +3,6 @@
 namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer;
 
 use App\Service\ApiScraper\Context\ScraperContext;
-use App\Service\ApiScraper\Context\ScraperStateEnum;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\PayloadPipeline\Interface\PipeHandlerInterface;
 

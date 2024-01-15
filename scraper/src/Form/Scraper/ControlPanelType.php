@@ -80,12 +80,12 @@ class ControlPanelType extends AbstractType
             ])
             ->add('secret', TextType::class, [
                 'required' => false,
-                'label' => 'Секрет для подписи запроса: ',
+                'label' => 'Секрет для подписи запроса(если требуется): ',
                 'attr' => ['placeholder' => 'Укажите секрет...']
             ])
             ->add('auth', TextType::class, [
                 'required' => false,
-                'label' => 'Токен авторизации: ',
+                'label' => 'Токен авторизации(если тербуется): ',
                 'attr' => ['placeholder' => 'X-auth-token...']
             ])
             ->add('delay', IntegerType::class, [

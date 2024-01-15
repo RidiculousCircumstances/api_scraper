@@ -7,7 +7,7 @@ use App\Entity\GroupTag;
 use App\Entity\OutputSchema;
 use App\Entity\Settings\Settings;
 use App\Service\Admin\ControlPanelFormService;
-use App\Service\ScraperStatusUI\ScraperStatusStore;
+use App\Service\ScraperUI\ScraperStatusStore;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;

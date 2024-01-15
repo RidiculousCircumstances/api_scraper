@@ -14,6 +14,7 @@ class TimeStamper implements PipeHandlerInterface
     {
         $parameters = $requestData->getRequestParameters();
         $payloadRef = &$requestData->getCrudePayloadReference();
+
         foreach ($parameters as $parameter) {
             if (!preg_match($this->pattern, $parameter->getValue())) {
                 continue;

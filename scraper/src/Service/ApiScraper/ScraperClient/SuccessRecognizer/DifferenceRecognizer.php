@@ -4,6 +4,7 @@ namespace App\Service\ApiScraper\ScraperClient\SuccessRecognizer;
 
 use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\Interface\RecognizerInterface;
 use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\SmithWaterman\SmithWatermanGotoh;
+use Ds\Stack;
 
 class DifferenceRecognizer implements RecognizerInterface
 {
@@ -11,28 +12,30 @@ class DifferenceRecognizer implements RecognizerInterface
     private const SIMILARITY_THRESHOLD = 0.26;
 
     private const SLICE_CAPACITY = 15;
-    private static array|string|null $previousItem = null;
+
+    private static Stack $previousStack;
+
+    private static bool $firstTime = true;
     private SmithWatermanGotoh $comparator;
 
     public function __construct()
     {
         $this->comparator = new SmithWatermanGotoh();
+        self::$previousStack = new Stack();
     }
 
     public function recognize(array|string $data): bool
     {
-        if (self::$previousItem === null) {
-            self::$previousItem = $data;
+        if (self::$previousStack->isEmpty()) {
+            self::$previousStack->push($data);
             return false;
         }
 
-        if (!is_string($data)) {
-            $prevArr = str_split(urldecode(http_build_query(self::$previousItem)), self::SLICE_CAPACITY);
-            $currentArr = str_split(urldecode(http_build_query($data)), self::SLICE_CAPACITY);
-        } else {
-            $prevArr = str_split(self::$previousItem);
-            $currentArr = str_split($data);
-        }
+        $previousItem = self::$previousStack->pop();
+        self::$previousStack->push($data);
+
+        $currentArr = $this->stringifyItemAndTurnIntoArray($data);
+        $prevArr = $this->stringifyItemAndTurnIntoArray($previousItem);
 
         $prevArrCount = count($prevArr);
         $currentArrCount = count($currentArr);
@@ -54,6 +57,16 @@ class DifferenceRecognizer implements RecognizerInterface
         $similarity = $similarityAbs / $count;
 
         return $similarity >= self::SIMILARITY_THRESHOLD;
+    }
+
+
+    private function stringifyItemAndTurnIntoArray(mixed $item): array
+    {
+        if (!is_string($item)) {
+            return str_split(urldecode(http_build_query($item)), self::SLICE_CAPACITY);
+        }
+
+        return str_split($item);
     }
 
 }

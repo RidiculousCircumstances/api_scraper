@@ -2,8 +2,8 @@
 
 namespace App\MessageHandler\Event;
 
-use App\Service\ApiScraper\ScraperMessage\Message\ScraperMessage;
-use App\Service\ScraperStatusUI\ScraperStatusStore;
+use App\Service\ApiScraper\ScraperMessage\Message\ScraperNotification;
+use App\Service\ScraperUI\ScraperStatusStore;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -21,7 +21,7 @@ readonly class DisplayParsingStatusHandler
     /**
      * @throws InvalidArgumentException
      */
-    public function __invoke(ScraperMessage $message): void
+    public function __invoke(ScraperNotification $message): void
     {
         $this->statusStore->persistMessage($message);
     }

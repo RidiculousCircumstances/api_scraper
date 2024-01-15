@@ -2,7 +2,6 @@
 
 namespace App\Service\ResponseParser\PostProcessPipeline;
 
-use App\Service\ApiScraper\PayloadPipeline\Interface\PipeHandlerInterface;
 use App\Service\ResponseParser\PostProcessPipeline\Interface\PostProcessHandlerInterface;
 use App\Service\ResponseParser\ResponseMapper\DTO\WritableRowData;
 use Ds\Queue;
@@ -17,10 +16,10 @@ class PostProcessPipe
 
     private WritableRowData $writableRow;
 
-    public function with(PostProcessHandlerInterface $handler): static
+
+    public function __construct()
     {
-        $this->handlersQueue->push($handler);
-        return $this;
+        $this->handlersQueue = new Queue();
     }
 
     public static function payload(WritableRowData $writableRow): static
@@ -30,9 +29,15 @@ class PostProcessPipe
         return $static;
     }
 
+    public function with(PostProcessHandlerInterface $handler): static
+    {
+        $this->handlersQueue->push($handler);
+        return $this;
+    }
+
     public function transform(): WritableRowData
     {
-        while(!$this->handlersQueue->isEmpty()) {
+        while (!$this->handlersQueue->isEmpty()) {
             $handler = $this->handlersQueue->pop();
             $handler->transform($this->writableRow);
         }

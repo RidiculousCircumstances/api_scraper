@@ -61,12 +61,14 @@ class StartScraperHandler implements LoggerAwareInterface
 
                 $scraper->execInstruction();
                 $msg = $ctx->getMessage();
+                $notification = $ctx->getNotification();
 
                 if (!$msg || $msg->isError() || $msg->hasSuccess()) {
                     $ctx->stop();
                 }
 
                 $this->eventBus->dispatch($msg);
+                $this->eventBus->dispatch($notification);
             }
         } catch (ScraperException $e) {
             $this->eventBus->dispatch($this->getErrorMessage($e->getMessage(), $e->getContext()));

@@ -19,10 +19,15 @@ use App\Service\ApiScraper\ScraperClient\Interface\ApiScraperClientInterface;
 use App\Service\ApiScraper\ScraperClient\SuccessRecognizer\Interface\RecognizerInterface;
 use App\Service\ApiScraper\ScraperMessage\Message\Enum\ScraperStatusesEnum;
 use App\Service\ApiScraper\ScraperMessage\Message\ScraperMessage;
+use App\Service\ApiScraper\ScraperMessage\Message\ScraperNotification;
+use App\Service\ApiScraper\ScraperMessage\Trait\ScraperMessageTrait;
 use RuntimeException;
 
 final class ScraperClient implements ApiScraperClientInterface
 {
+
+
+    use ScraperMessageTrait;
 
     /**
      * Максимальное количество неудачных попыток
@@ -62,6 +67,9 @@ final class ScraperClient implements ApiScraperClientInterface
             throw new RuntimeException('[ScraperClient] Превышен лимит неудачных запросов.');
         }
 
+        /**
+         * Установка флага "не является первым запрососм" в контекст
+         */
         if ($this->firstResponse) {
             $this->firstResponse = false;
         } else {
@@ -74,14 +82,16 @@ final class ScraperClient implements ApiScraperClientInterface
         $instruction->rewind();
 
         if ($this->pending) {
-            $msg = new ScraperMessage(payload: 'running', ctx: $this->ctx);
             $this->ctx
-                ->setScraperStatus(ScraperStatusesEnum::PROCESS)
-                ->setMessage($msg);
+                ->setScraperStatus(ScraperStatusesEnum::PROCESS);
             $this->pending = false;
         }
 
         while (!$instruction->isExecuted()) {
+
+            $this->ctx->addRequestsCount();
+            $notify = new ScraperNotification(text: 'Идёт обработка. Обработано запросов: ' . $this->ctx->getRequestsCount(), ctx: $this->ctx);
+            $this->ctx->setNotification($notify);
 
             $requestConfig = $instruction->getRequestConfig();
 
@@ -90,7 +100,8 @@ final class ScraperClient implements ApiScraperClientInterface
             $schemaData = $instruction->extractSchema();
 
             /**
-             * Производим манипуляции с полезной нагрузкой e.g.загружаем внешние значения, подставляем значения.
+             * Если инструкция состоит более чем из одной схемы, и главная схема не вернула для связанной
+             * данные, значит, все итерации заершены
              */
             $schemaData = PayloadTransformPipe::payload($schemaData)
                 ->with(new TimeStamper())
@@ -101,6 +112,17 @@ final class ScraperClient implements ApiScraperClientInterface
                 ->with(new PayloadSigner($requestConfig->getSecret()))
                 ->transform();
 
+            if (ExternalValueLoader::mainRequestReturnedEmptyData()) {
+                $notify = $this->getSuccessMessage();
+                $this->ctx
+                    ->setScraperStatus(ScraperStatusesEnum::SUCCESS)
+                    ->setNotification($notify);
+                return;
+            }
+
+            /**
+             * Производим манипуляции с полезной нагрузкой e.g.загружаем внешние значения, подставляем значения.
+             */
             $request = RequestFactory::getRequest($instruction->getRequestConfig(), $schemaData);
 
             try {
@@ -124,11 +146,12 @@ final class ScraperClient implements ApiScraperClientInterface
                     ctx: $this->ctx,
                 );
 
-                /**
-                 * TODO:проверить, отображает ли успех в ui
-                 */
                 if ($this->successRecognizer->recognize($response)) {
-                    $this->ctx->setScraperStatus(ScraperStatusesEnum::SUCCESS);
+                    $notify = $this->getSuccessMessage();
+                    $this->ctx
+                        ->setScraperStatus(ScraperStatusesEnum::SUCCESS)
+                        ->setNotification($notify);
+                    return;
                 }
 
                 $this->ctx->setMessage($msg);
@@ -158,10 +181,10 @@ final class ScraperClient implements ApiScraperClientInterface
                 if (!$this->badOutcomeRecognizer->recognize($exception->getCode())) {
                     continue;
                 }
-                $errorMsg = new ScraperMessage(payload: $msg, ctx: $this->ctx);
+                $errorMsg = new ScraperNotification(text: $msg, ctx: $this->ctx);
                 $this->ctx
                     ->setScraperStatus(ScraperStatusesEnum::ERROR)
-                    ->setMessage($errorMsg);
+                    ->setNotification($errorMsg);
             }
         }
     }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Service\ScraperStatusUI;
+namespace App\Service\ScraperUI;
 
-use App\Service\ApiScraper\ScraperMessage\Message\ScraperMessage;
+use App\Service\ApiScraper\ScraperMessage\Message\ScraperNotification;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
 
@@ -17,23 +17,17 @@ class ScraperStatusStore
     /**
      * @throws InvalidArgumentException
      */
-    public function persistMessage(ScraperMessage $errorMessage): void
+    public function persistMessage(ScraperNotification $notification): void
     {
         $messageCache = $this->cachePool->getItem(self::SCRAPER_MESSAGE_KEY);
-        $messageCache->set($this->buildMessage($errorMessage));
+        $messageCache->set($this->buildMessage($notification));
         $this->cachePool->save($messageCache);
     }
 
-    private function buildMessage(ScraperMessage $message): ScraperUIMessage
+    private function buildMessage(ScraperNotification $message): ScraperUIMessage
     {
         $status = $message->getCtx()->getScraperStatus();
-        if ($message->isError()) {
-            $msg = $message->getPayload();
-
-            return new ScraperUIMessage($msg, $status, $message->getDateTime());
-        }
-
-        return new ScraperUIMessage('Задача успешно обработана', $status, $message->getDateTime());
+        return new ScraperUIMessage($message->getText(), $status, $message->getDateTime());
 
     }
 

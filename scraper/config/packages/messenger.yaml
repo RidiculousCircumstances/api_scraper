@@ -18,11 +18,10 @@ framework:
       sync: 'sync://'
 
     routing:
-#            'App\Message\ApiScraper\StartScraperCommand': async
+      'App\Message\Scraper\StartScraperCommand': async
 
-
-when@dev:
-  framework:
-    messenger:
-      routing:
-        'App\Message\Scraper\StartScraperCommand': sync
+#when@dev:
+#  framework:
+#    messenger:
+#      routing:
+#        'App\Message\Scraper\StartScraperCommand': sync

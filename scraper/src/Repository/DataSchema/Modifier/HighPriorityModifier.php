@@ -15,6 +15,6 @@ readonly class HighPriorityModifier implements ModifierInterface
 
     public function apply(QueryBuilder $queryBuilder): void
     {
-        $queryBuilder->orderBy($this->alias . '.executionOrder', 'asc')->setMaxResults(1);
+        $queryBuilder->orderBy($this->alias . '.executionOrder', 'desc')->setMaxResults(1);
     }
 }

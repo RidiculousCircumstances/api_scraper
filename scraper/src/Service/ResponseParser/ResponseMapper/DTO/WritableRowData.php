@@ -8,7 +8,8 @@ class WritableRowData
     /**
      * @var array
      */
-    private array $rowElements;
+    private array $rowElements = [];
+
 
     public function addRowElement(string $outputName, string|null $value): void
     {
@@ -33,24 +34,26 @@ class WritableRowData
 
     }
 
-    public function getColumn(string $header): array|null {
-        return $this->rowElements[$header] ?? null;
-    }
-
-    public function deleteColumn(string $header): void {
-        if(!isset($this->rowElements[$header])) {
-            return;
-        }
-
-        unset($this->rowElements[$header]);
-    }
-
     /**
      * @return array
      */
     public function getHeaders(): array
     {
         return array_keys($this->rowElements);
+    }
+
+    public function getColumn(string $header): array|null
+    {
+        return $this->rowElements[$header] ?? null;
+    }
+
+    public function deleteColumn(string $header): void
+    {
+        if (!isset($this->rowElements[$header])) {
+            return;
+        }
+
+        unset($this->rowElements[$header]);
     }
 
 }

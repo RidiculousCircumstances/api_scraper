@@ -27,9 +27,14 @@ use Ds\Queue;
 final class ExternalValueLoader implements PipeHandlerInterface
 {
 
+    private static bool $hasEmptyResult = false;
+
     private static self|null $instance = null;
     private StringPathExplorer $pathExplorer;
     private Queue $externalItemsQueue;
+
+    private array|null $currentExternalItem = null;
+
     /**
      * @var Queue<RequestParameterData> $parametersQueue
      */
@@ -61,6 +66,11 @@ final class ExternalValueLoader implements PipeHandlerInterface
     public static function getFresh(ResponseBag $registry, SuspendableInterface $instruction): ExternalValueLoader
     {
         return new self($registry, $instruction);
+    }
+
+    public static function mainRequestReturnedEmptyData(): bool
+    {
+        return self::$hasEmptyResult;
     }
 
     /**
@@ -97,23 +107,33 @@ final class ExternalValueLoader implements PipeHandlerInterface
                 continue;
             }
 
+            $items = $this->pathExplorer->extractItems($externalPath, $externalData->getContent());
+
+            if ($items === null || count($items) === 0) {
+                self::$hasEmptyResult = true;
+                break;
+            }
+
             /**
              * Иначе блокируем очередь схем на текущей.
              * Нам нужно выполнить запрос для каждого айтема во внешнем источнике.
              *
              * Таким образом, скрапер клиент продолжит выполнять запрос
              */
-
             if (!$this->instruction->isSuspended()) {
                 $this->instruction->setSuspended(true);
             }
 
-            $value = $this->handleItems($externalPath, $externalData->getContent());
+            $value = $this->handleItems($externalPath, $items);
 
             $payloadRef[$parameter->getKey()] = $value;
 
             if ($this->externalItemsQueue->isEmpty()) {
                 $this->instruction->setSuspended(false);
+            }
+
+            if ($this->parametersQueue->isEmpty()) {
+                $this->currentExternalItem = null;
             }
 
         }
@@ -123,20 +143,26 @@ final class ExternalValueLoader implements PipeHandlerInterface
     /**
      * Извлекает данные из выполненного запроса.
      * @param string $path
-     * @param array $content
+     * @param array $items
      * @return mixed
      */
-    private function handleItems(string $path, array $content): mixed
+    private function handleItems(string $path, array $items): mixed
     {
 
-        $items = $this->pathExplorer->extractItems($path, $content);
         if ($this->externalItemsQueue->isEmpty()) {
             $this->externalItemsQueue->push(...$items);
         }
 
-        $item = $this->externalItemsQueue->pop();
+        /**
+         * Если в рамках одной схемы требуется несколько подстановок - для каждого параметра используем
+         * один и тот же айтем, курсор двигать в таком случае не нужно.
+         */
 
-        return $this->pathExplorer->extractValue($path, $item);
+        if (!$this->currentExternalItem) {
+            $this->currentExternalItem = $this->externalItemsQueue->pop();
+        }
+
+        return $this->pathExplorer->extractValue($path, $this->currentExternalItem);
 
     }
 

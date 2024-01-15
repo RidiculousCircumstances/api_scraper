@@ -21,6 +21,10 @@ class CsvFileWriter implements FileWriterInterface
     public function write(WritableRowData $rowData): void
     {
 
+        if (!file_exists($this->baseFilePath) && !mkdir($this->baseFilePath) && !is_dir($this->baseFilePath)) {
+            throw new \RuntimeException(sprintf('Не удалось создать директорию "%s" для сохранения изображений', $this->baseFilePath));
+        }
+
         $resource = fopen($this->baseFilePath . $this->fileName, 'ab+');
 
         if ($this->firstResponse) {

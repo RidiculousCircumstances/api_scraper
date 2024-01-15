@@ -25,9 +25,6 @@ services:
 
   web:
     <<: *base
-    container_name: api_scraper-web
-    ports:
-      - "8000:5000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -50,7 +47,6 @@ services:
       dockerfile: docker/nginx/Dockerfile
     volumes:
       - ./scraper:/var/www
-      - ./docker/nginx/ssl:/etc/nginx/ssl
     ports:
       - "8080:80"
     links:

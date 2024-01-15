@@ -15,5 +15,5 @@ install-deps:
 	docker exec -u 0 api_scraper-web composer install
 
 install:
-	 cp ./env-example .env && cp ./scraper/.env-example ./scraper/.env && make run && make install-deps && make build-admin-static
+	 cp ./.env-example .env && cp ./scraper/.env-example ./scraper/.env && make run && make install-deps && make build-admin-static
 

@@ -121,10 +121,10 @@ API SCRAPER
 - локация: value
 - параметр: string_length
 
----  
+
 
 ## Response Field
-Эти шаблоны могут применяться только полю name для Response Field.
+Эти шаблоны могут применяться только к полю name для Response Field.
 
 **Загрузка изобажения**\
 >{{:image=<directory_key>}}>

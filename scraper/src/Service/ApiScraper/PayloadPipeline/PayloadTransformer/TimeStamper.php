@@ -4,9 +4,9 @@ namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer;
 
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
-use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PipeHandlerInterface;
 
-class TimeStamper implements PayloadTransformerInterface
+class TimeStamper implements PipeHandlerInterface
 {
     private string $pattern = '/\s*{{:timestamp}}\s*/';
 

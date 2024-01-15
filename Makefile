@@ -11,4 +11,4 @@ autoload:
 	docker compose run web composer dump-autoload
 
 up:
-	docker compose up -d nginx web redis db consumer && docker exec -u 0 drom_api_scraper-web-1 chown -R 1000:1000 /var/www/output && docker exec -u 0 drom_api_scraper-web-1 chmod -R 777 /var/www/output
+	docker compose up -d nginx web redis db consumer && docker exec -u 0 api_scraper-web chown -R 1000:1000 /var/www/output && docker exec -u 0 api_scraper-web chmod -R 777 /var/www/output

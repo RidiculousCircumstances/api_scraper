@@ -4,14 +4,14 @@ namespace App\Service\ApiScraper\PayloadPipeline;
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\Instruction\DTO\ScraperSchemaData;
-use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PipeHandlerInterface;
 use Ds\Queue;
 
 final class PayloadTransformPipe
 {
 
     /**
-     * @var Queue<PayloadTransformerInterface> $transformerQueue
+     * @var Queue<PipeHandlerInterface> $transformerQueue
      */
     private Queue $transformerQueue;
 
@@ -30,7 +30,7 @@ final class PayloadTransformPipe
         return $static;
     }
 
-    public function with(PayloadTransformerInterface $payloadTransformer): self
+    public function with(PipeHandlerInterface $payloadTransformer): self
     {
         $this->transformerQueue->push($payloadTransformer);
         return $this;
@@ -55,7 +55,6 @@ final class PayloadTransformPipe
             $transformer = $this->transformerQueue->pop();
             $transformer->transform($requestData);
         }
-
 
         return $this->parsingSchemaData->setRequestData($requestData);
     }

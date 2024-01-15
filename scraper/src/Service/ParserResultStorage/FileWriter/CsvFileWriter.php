@@ -21,20 +21,20 @@ class CsvFileWriter implements FileWriterInterface
     public function write(WritableRowData $rowData): void
     {
 
-        $stream = fopen($this->baseFilePath . $this->fileName, 'ab+');
+        $resource = fopen($this->baseFilePath . $this->fileName, 'ab+');
 
         if ($this->firstResponse) {
             $header = $rowData->getHeaders();
-            fputcsv($stream, $header);
+            fputcsv($resource, $header);
             $this->firstResponse = false;
         }
 
         $row = $rowData->getRow();
         while ($row !== null) {
-            fputcsv($stream, $row);
+            fputcsv($resource, $row);
             $row = $rowData->getRow();
         }
 
-        fclose($stream);
+        fclose($resource);
     }
 }

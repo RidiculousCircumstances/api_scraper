@@ -33,6 +33,18 @@ class WritableRowData
 
     }
 
+    public function getColumn(string $header): array|null {
+        return $this->rowElements[$header] ?? null;
+    }
+
+    public function deleteColumn(string $header): void {
+        if(!isset($this->rowElements[$header])) {
+            return;
+        }
+
+        unset($this->rowElements[$header]);
+    }
+
     /**
      * @return array
      */

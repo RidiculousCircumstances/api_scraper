@@ -25,6 +25,7 @@ services:
 
   web:
     <<: *base
+    container_name: api_scraper-web
     ports:
       - "8000:5000"
     extra_hosts:

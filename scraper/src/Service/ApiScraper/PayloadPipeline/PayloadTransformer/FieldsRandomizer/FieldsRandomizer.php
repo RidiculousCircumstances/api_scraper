@@ -3,9 +3,9 @@
 namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\FieldsRandomizer;
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
-use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PipeHandlerInterface;
 
-class FieldsRandomizer implements PayloadTransformerInterface
+class FieldsRandomizer implements PipeHandlerInterface
 {
 
     private static string $needsRandomizePattern = '/{{:random_string=(?<length>\d+)}}/';

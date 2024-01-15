@@ -4,7 +4,7 @@ namespace App\Service\ApiScraper\PayloadPipeline\Interface;
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 
-interface PayloadTransformerInterface
+interface PipeHandlerInterface
 {
 
     /**

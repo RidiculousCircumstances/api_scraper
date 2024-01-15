@@ -5,12 +5,12 @@ namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer;
 use App\Service\ApiScraper\Context\ScraperContext;
 use App\Service\ApiScraper\Context\ScraperStateEnum;
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
-use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PipeHandlerInterface;
 
 /**
  * Увеличивает значение поля с каждым вызовом. Используется для пагинации
  */
-class PageIncrementor implements PayloadTransformerInterface
+class PageIncrementor implements PipeHandlerInterface
 {
     private static int|null $currentValue = null;
     private string $pattern = '/\s*{{:page}}\s*/';
@@ -44,7 +44,7 @@ class PageIncrementor implements PayloadTransformerInterface
          * Если нечего инкрементировать - значит, нечего итерировать
          */
         if (self::$currentValue === null) {
-            $this->ctx->setState(ScraperStateEnum::STOPPED);
+            $this->ctx->stop();
             return;
         }
 

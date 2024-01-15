@@ -4,7 +4,7 @@ namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\PayloadSigne
 
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
-use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PipeHandlerInterface;
 
 /**
  *
@@ -12,7 +12,7 @@ use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface
  * Должен добавляться последним, после всех трансформаций
  *
  */
-class PayloadSigner implements PayloadTransformerInterface
+class PayloadSigner implements PipeHandlerInterface
 {
 
     private static string $secretPattern = '/\s*{{:secret}}\s*/';

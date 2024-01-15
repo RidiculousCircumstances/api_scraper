@@ -3,12 +3,12 @@
 namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\UrlSegmentReplacer;
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
-use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PipeHandlerInterface;
 
 /**
  * Подгружает зачения, полученные ExternalValueLoader, в урл, если требуется
  */
-class UrlSegmentReplacer implements PayloadTransformerInterface
+class UrlSegmentReplacer implements PipeHandlerInterface
 {
 
     private UrlExplorer $urlExplorer;

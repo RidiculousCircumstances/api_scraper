@@ -5,7 +5,7 @@ namespace App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\ExternalValu
 
 use App\Service\ApiScraper\Instruction\DTO\RequestData;
 use App\Service\ApiScraper\Instruction\DTO\RequestParameterData;
-use App\Service\ApiScraper\PayloadPipeline\Interface\PayloadTransformerInterface;
+use App\Service\ApiScraper\PayloadPipeline\Interface\PipeHandlerInterface;
 use App\Service\ApiScraper\PayloadPipeline\PayloadTransformer\Interface\SuspendableInterface;
 use App\Service\ApiScraper\ResponseBag\ResponseBag;
 use App\Service\StringPathExplorer\StringPathExplorer;
@@ -24,7 +24,7 @@ use Ds\Queue;
  * То есть, в трансформере имитируется генератор, который итерируется по массиву айтемов,
  * если такой есть. Если нет - происходит обычный вызов
  */
-final class ExternalValueLoader implements PayloadTransformerInterface
+final class ExternalValueLoader implements PipeHandlerInterface
 {
 
     private static self|null $instance = null;

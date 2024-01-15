@@ -14,6 +14,9 @@ build-admin-static:
 install-deps:
 	docker exec -u 0 api_scraper-web composer install
 
+migrate:
+	docker exec -u 0 api_scraper-web php bin/console d:m:migrate
+
 install:
-	 cp ./.env-example .env && cp ./scraper/.env-example ./scraper/.env && make run && make install-deps && make build-admin-static
+	 cp ./.env-example .env && cp ./scraper/.env-example ./scraper/.env && make run && make install-deps && make build-admin-static && migrate
 
